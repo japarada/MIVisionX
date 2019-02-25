@@ -42,6 +42,8 @@ public:
                          QVector<QVector<int> >& labelTopK, QVector<QVector<float> >& probTopK);
     float getPerfImagesPerSecond();
 
+    bool is_Connected();
+
 signals:
     void finished();
     void error(QString err);
@@ -77,6 +79,7 @@ private:
     runtime_receiver_status * progress;
     int sendFileName;
     int topKValue;
+    bool is_connected;
 };
 
 #endif // INFERENCE_RECEIVER_H

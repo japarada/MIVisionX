@@ -561,6 +561,15 @@ int InferenceEngine::run()
     /// make device lock is successful
     ///
     if(!deviceLockSuccess) {
+
+        InfComCommand gpu_lock_error = {
+            INFCOM_MAGIC, INFCOM_CMD_ERROR_GPU_LOCK, { 0 }, { 0 }
+        };
+
+        gpu_lock_error.data[0] = 100;
+        sprintf(gpu_lock_error.message, "Failed to lock GPU device");
+
+        ERRCHK(sendCommand(sock, gpu_lock_error, clientName));
         return error_close(sock, "could not lock %d GPUs devices for inference request from %s", GPUs, clientName.c_str());
     }
 

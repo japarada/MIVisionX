@@ -31,8 +31,9 @@ public:
     QVector<QString> inferenceResultSummary;
     QVector<QString> shadowFileBuffer;
     // receiver
-    QThread * receiver_thread;
-    inference_receiver * receiver_worker;
+    std::vector<QThread *> receiver_threads;
+    std::vector<inference_receiver *> receiver_workers;
+	
     // rendering state
     float offsetSeconds;
     QVector<int> resultImageIndex;
@@ -103,6 +104,7 @@ public:
 
 public slots:
     void errorString(QString err);
+	void manageReceiversPool();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -111,7 +113,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *) override;
 
 private:
-    void startReceiver();
+    void startReceivers();
     void saveResults();
     void showPerfResults();
     void terminate();
@@ -125,6 +127,7 @@ private:
     inference_state * state;
     QString fatalError;
     runtime_receiver_status progress;
+	QTimer * receivers_timer;
 };
 
 /* Model Info Structure */
