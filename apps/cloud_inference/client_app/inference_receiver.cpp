@@ -97,7 +97,7 @@ void inference_receiver::run()
                 break;
             if(cmd.magic != INFCOM_MAGIC) {
                 progress->errorCode = -1;
-                progress->message.sprintf("ERROR: got invalid magic 0x%08x", cmd.magic);
+             //   progress->message.sprintf("ERROR: got invalid magic 0x%08x", cmd.magic);
                 break;
             }
             else if(cmd.command == INFCOM_CMD_DONE) {
@@ -128,7 +128,7 @@ void inference_receiver::run()
 				//reset complete flag as other thread could have set it to complete
 				progress->completed = false;
 
-                progress->message = "";
+              //  progress->message = "";
                 int count_requested = cmd.data[0];
                 int count = progress->completed_send ? -1 :
                                 std::min(imageCount - nextImageToSend, count_requested);
@@ -142,15 +142,17 @@ void inference_receiver::run()
                 bool failed = false;
                 for(int i = 0; i < count; i++) {
                     // send the image at nextImageToSend
+					QString msg = "";
                     if (sendFileName) {
                         QByteArray fileNameBuffer;
                         fileNameBuffer.append((*shadowFileBuffer)[nextImageToSend]);
-                        if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, progress->message, abortRequsted)) {
+						
+                        if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, msg, abortRequsted)) {
                             failed = true;
                             break;
                         }
                     }
-                    else if(!connection->sendImage(nextImageToSend, (*imageBuffer)[nextImageToSend], progress->errorCode, progress->message, abortRequsted)) {
+                    else if(!connection->sendImage(nextImageToSend, (*imageBuffer)[nextImageToSend], progress->errorCode, msg, abortRequsted)) {
                         failed = true;
                         break;
                     }
@@ -248,7 +250,7 @@ void inference_receiver::run()
     }
     else {
         progress->errorCode = -1;
-        progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
+        //progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
     }
     
 	 
