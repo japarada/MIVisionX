@@ -22,6 +22,8 @@
 cmake_minimum_required (VERSION 2.8)
 project (inference_server_app)
 
+add_definitions(-DENABLE_KUBERNETES_MODE)
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../../amd_openvx/cmake)
 
 set (CMAKE_CXX_STANDARD 11)
@@ -30,7 +32,7 @@ find_package(OpenCL REQUIRED)
 find_package(OpenCV REQUIRED)
 
 include_directories(../../../amd_openvx/openvx/include ../../../amd_openvx_extensions/amd_nn)
-
+include_directories(${OpenCL_INCLUDE_DIRS})
 list(APPEND SOURCES
 	common.cpp
 	arguments.cpp

@@ -41,9 +41,9 @@ public:
     void getReceivedList(QVector<int>& indexQ, QVector<int>& labelQ, QVector<QString>& summaryQ,
                          QVector<QVector<int> >& labelTopK, QVector<QVector<float> >& probTopK);
     float getPerfImagesPerSecond();
-
+#if defined(ENABLE_KUBERNETES_MODE)	
     bool is_Connected();
-
+#endif
 signals:
     void finished();
     void error(QString err);
@@ -79,7 +79,9 @@ private:
     runtime_receiver_status * progress;
     int sendFileName;
     int topKValue;
+#if defined(ENABLE_KUBERNETES_MODE)	
     bool is_connected;
+#endif
 };
 
 #endif // INFERENCE_RECEIVER_H

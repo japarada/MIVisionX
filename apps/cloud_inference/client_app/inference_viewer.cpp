@@ -24,7 +24,9 @@
 #define INFCOM_RUNTIME_OPTIONS   ""
 #define HIERARCHY_PENALTY        0.2
 
-#define NUMBER_OF_CONNECTIONS  20
+#if defined(ENABLE_KUBERNETES_MODE)	
+#define NUMBER_OF_CONNECTIONS  64
+#endif
 
 inference_state::inference_state()
 {
@@ -36,6 +38,10 @@ inference_state::inference_state()
     imageLoadCount = 0;
     imagePixmapDone = false;
     imagePixmapCount = 0;
+#if !defined(ENABLE_KUBERNETES_MODE)	
+    receiver_thread = nullptr;
+    receiver_worker = nullptr;
+#endif
     mouseClicked = false;
     mouseLeftClickX = 0;
     mouseLeftClickY = 0;
@@ -78,8 +84,11 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
         QWidget *parent) :
     QWidget(parent),
     ui(new Ui::inference_viewer),
-    updateTimer{ nullptr },
+    updateTimer{ nullptr }
+#if defined(ENABLE_KUBERNETES_MODE)
+	,
 	receivers_timer{ nullptr }
+#endif
 {
     state = new inference_state();
     state->dataLabels = dataLabels;
@@ -135,9 +144,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
 inference_viewer::~inference_viewer()
 {
     inference_receiver::abort();
-	
+#if defined(ENABLE_KUBERNETES_MODE)
 	if (!receivers_timer)
 		receivers_timer->stop();
+#endif
     delete state;
     delete ui;
 }
@@ -147,6 +157,7 @@ void inference_viewer::errorString(QString /*err*/)
     qDebug("ERROR: inference_viewer: ...");
 }
 
+#if defined(ENABLE_KUBERNETES_MODE)
 void inference_viewer::startReceivers()
 {
 	for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
@@ -239,6 +250,36 @@ void inference_viewer::terminate()
 	}
 	close();
 }
+#else
+void inference_viewer::startReceiver()
+{
+    // start receiver thread
+    state->receiver_thread = new QThread;
+    state->receiver_worker = new inference_receiver(
+                state->serverHost, state->serverPort, state->modelName,
+                state->GPUs, state->inputDim, state->outputDim, INFCOM_RUNTIME_OPTIONS,
+                &state->imageBuffer, &progress, state->sendFileName, state->topKValue, &state->shadowFileBuffer);
+    state->receiver_worker->moveToThread(state->receiver_thread);
+    connect(state->receiver_worker, SIGNAL (error(QString)), this, SLOT (errorString(QString)));
+    connect(state->receiver_thread, SIGNAL (started()), state->receiver_worker, SLOT (run()));
+    connect(state->receiver_worker, SIGNAL (finished()), state->receiver_thread, SLOT (quit()));
+    connect(state->receiver_worker, SIGNAL (finished()), state->receiver_worker, SLOT (deleteLater()));
+    connect(state->receiver_thread, SIGNAL (finished()), state->receiver_thread, SLOT (deleteLater()));
+    state->receiver_thread->start();
+    state->receiver_thread->terminate();
+}
+
+void inference_viewer::terminate()
+{
+    if(state->receiver_worker && !progress.completed && !progress.errorCode) {
+        state->receiver_worker->abort();
+        for(int count = 0; count < 10 && !progress.completed; count++) {
+            QThread::msleep(100);
+        }
+    }
+    close();
+}
+#endif
 
 void inference_viewer::showPerfResults()
 {
@@ -789,11 +830,17 @@ void inference_viewer::keyReleaseEvent(QKeyEvent * event)
         terminate();
     }
     else if(event->key() == Qt::Key_A) {
+#if defined(ENABLE_KUBERNETES_MODE)
         if(progress.completed_decode &&  state->receiver_workers.size()) {
 			for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
 				state->receiver_workers[i]->abort();
 			}
         }
+#else
+        if(progress.completed_decode && state->receiver_worker) {
+                state->receiver_worker->abort();
+        }
+#endif
     }
     else if(event->key() == Qt::Key_S) {
         saveResults();
@@ -936,7 +983,11 @@ void inference_viewer::paintEvent(QPaintEvent *)
             if(state->sendFileName){
                 // extract only the last folder and filename for shadow
                 QStringList fileNameList = fileName.split("/");
-                QString subFileName = fileNameList.at(fileNameList.size()- 2) + "/" + fileNameList.last();
+#if defined(ENABLE_KUBERNETES_MODE)
+				QString subFileName = fileNameList.last();
+#else
+				QString subFileName = fileNameList.at(fileNameList.size() - 2) + "/" + fileNameList.last();
+#endif
                 //printf("Inference viewer adding file %s to shadow array of size %d\n", subFileName.toStdString().c_str(), byteArray.size());
                 state->shadowFileBuffer.push_back(subFileName);
             }
@@ -974,19 +1025,30 @@ void inference_viewer::paintEvent(QPaintEvent *)
             state->imagePixmapCount++;
             progress.images_decoded = state->imagePixmapCount;
         }
+#if defined(ENABLE_KUBERNETES_MODE)
 		if (state->receiver_workers.size())
 		{
 			for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
 				state->receiver_workers[i]->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
 			}
 		}
+#else
+ 		if(state->receiver_worker)
+            state->receiver_worker->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
+#endif
 	}
 
+#if defined(ENABLE_KUBERNETES_MODE)
     if(!state->receiver_workers.size() && state->imagePixmapCount >= imageCountLimitForInferenceStart && state->imageDataSize > 0) {
         startReceivers();
 		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
 			state->receiver_workers[i]->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
 		}
+#else
+    if(!state->receiver_worker && state->imagePixmapCount >= imageCountLimitForInferenceStart && state->imageDataSize > 0) {
+        startReceiver();
+        state->receiver_worker->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
+#endif
 	}
 
     // initialize painter object
@@ -1067,12 +1129,18 @@ void inference_viewer::paintEvent(QPaintEvent *)
     }
 
     // get image render list from receiver
+#if defined(ENABLE_KUBERNETES_MODE)
 	if (state->receiver_workers.size()) {
 		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
 			//state->receiver_workers[]
 			state->receiver_workers[i]->getReceivedList(state->resultImageIndex, state->resultImageLabel, state->resultImageSummary,
 				state->resultImageLabelTopK, state->resultImageProbTopK);
 		}
+#else
+    if(state->receiver_worker) {
+        state->receiver_worker->getReceivedList(state->resultImageIndex, state->resultImageLabel, state->resultImageSummary,
+                                                state->resultImageLabelTopK, state->resultImageProbTopK);
+#endif
 	}
 
     // trim the render list to viewable area
@@ -1091,12 +1159,17 @@ void inference_viewer::paintEvent(QPaintEvent *)
             imageCols = imageCount % numCols;
         }
 
+#if defined(ENABLE_KUBERNETES_MODE)
         // get received image/rate
         float imagesPerSec = 0.0;
 
 		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
 			imagesPerSec += state->receiver_workers[i]->getPerfImagesPerSecond();
 		}
+#else
+ 		float imagesPerSec = state->receiver_worker->getPerfImagesPerSecond();
+#endif
+		
         int E_secs = state->timerElapsed.elapsed() / 1000;
         int E_mins = (E_secs / 60) % 60;
         int E_hours = (E_secs / 3600);

@@ -100,7 +100,9 @@
 #define INFCOM_CMD_SHADOW_CREATE_FOLDER        402
 #define INFCOM_CMD_SHADOW_SEND_FILES           403
 #define INFCOM_CMD_SHADOW_RESULT               404
+#if defined(ENABLE_KUBERNETES_MODE)	
 #define INFCOM_CMD_ERROR_GPU_LOCK              405
+#endif
 
 // InfComCommand.data[0] for INFCOM_CMD_SEND_MODE
 #define INFCOM_MODE_CONFIGURE                  1

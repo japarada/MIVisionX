@@ -3,6 +3,10 @@
 #include <iostream>
 #include <QThread>
 
+#if defined(ENABLE_KUBERNETES_MODE)	
+#define ZERO_PADDING_LENGTH 256
+#endif
+
 bool inference_receiver::abortRequsted = false;
 
 void inference_receiver::abort()
@@ -36,7 +40,9 @@ inference_receiver::inference_receiver(
     sendFileName = sendFileName_;
     topKValue = topKValue_;
     shadowFileBuffer = shadowFileBuffer_;
+#if defined(ENABLE_KUBERNETES_MODE)
     is_connected= true;
+#endif
 }
 
 inference_receiver::~inference_receiver()
@@ -65,11 +71,12 @@ void inference_receiver::getReceivedList(QVector<int>& indexQ, QVector<int>& lab
     }
 }
 
-
+#if defined(ENABLE_KUBERNETES_MODE)
 bool inference_receiver::is_Connected()
 {
   return is_connected;
 }
+#endif
 
 void inference_receiver::run()
 {
@@ -79,16 +86,20 @@ void inference_receiver::run()
     //    - when results are received add the results to imageIndex, imageLabel, imageSummary queues
 
     progress->images_sent = 0;
-    
+ 
+ #if defined(ENABLE_KUBERNETES_MODE)   
     //do not reset images received as other running threads might had received images already
 	//progress->images_received = 0;
-    
+ #endif
+ 
     progress->completed_send = false;
     progress->completed = false;
 
     TcpConnection * connection = new TcpConnection(serverHost, serverPort, 3000, this);
     if(connection->connected()) {
+ #if defined(ENABLE_KUBERNETES_MODE)
         is_connected = true;
+ #endif
         int nextImageToSend = 0;
         InfComCommand cmd;
         while(!abortRequsted && connection->recvCmd(cmd)) {
@@ -97,7 +108,9 @@ void inference_receiver::run()
                 break;
             if(cmd.magic != INFCOM_MAGIC) {
                 progress->errorCode = -1;
+ #if defined(ENABLE_KUBERNETES_MODE)
              //   progress->message.sprintf("ERROR: got invalid magic 0x%08x", cmd.magic);
+ #endif
                 break;
             }
             else if(cmd.command == INFCOM_CMD_DONE) {
@@ -124,11 +137,11 @@ void inference_receiver::run()
                 connection->sendCmd(reply);
             }
             else if(cmd.command == INFCOM_CMD_SEND_IMAGES) {
-
+#if defined(ENABLE_KUBERNETES_MODE)
 				//reset complete flag as other thread could have set it to complete
 				progress->completed = false;
-
               //  progress->message = "";
+#endif
                 int count_requested = cmd.data[0];
                 int count = progress->completed_send ? -1 :
                                 std::min(imageCount - nextImageToSend, count_requested);
@@ -142,17 +155,19 @@ void inference_receiver::run()
                 bool failed = false;
                 for(int i = 0; i < count; i++) {
                     // send the image at nextImageToSend
-					QString msg = "";
                     if (sendFileName) {
                         QByteArray fileNameBuffer;
-                        fileNameBuffer.append((*shadowFileBuffer)[nextImageToSend]);
-						
-                        if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, msg, abortRequsted)) {
+						fileNameBuffer.append((*shadowFileBuffer)[nextImageToSend]);
+#if defined(ENABLE_KUBERNETES_MODE)						
+						for (int i = 0; i < ZERO_PADDING_LENGTH; i++)
+							fileNameBuffer.append('\0');
+#endif
+                        if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, progress->message, abortRequsted)) {
                             failed = true;
                             break;
                         }
                     }
-                    else if(!connection->sendImage(nextImageToSend, (*imageBuffer)[nextImageToSend], progress->errorCode, msg, abortRequsted)) {
+                    else if(!connection->sendImage(nextImageToSend, (*imageBuffer)[nextImageToSend], progress->errorCode, progress->message, abortRequsted)) {
                         failed = true;
                         break;
                     }
@@ -242,7 +257,9 @@ void inference_receiver::run()
             }
             else {
                 progress->errorCode = -1;
+#if defined(ENABLE_KUBERNETES_MODE)	
                 //progress->message.sprintf("ERROR: got invalid command 0x%08x", cmd.command);
+#endif
                 break;
             }
         }
@@ -250,7 +267,9 @@ void inference_receiver::run()
     }
     else {
         progress->errorCode = -1;
+#if defined(ENABLE_KUBERNETES_MODE)	
         //progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
+#endif
     }
     
 	 
@@ -263,8 +282,9 @@ void inference_receiver::run()
     if(progress->errorCode) {
         qDebug("inference_receiver::run() terminated: errorCode=%d", progress->errorCode);
     }
-
+#if defined(ENABLE_KUBERNETES_MODE)	
 	is_connected = false; 
+#endif
 }
 
 float inference_receiver::getPerfImagesPerSecond()
