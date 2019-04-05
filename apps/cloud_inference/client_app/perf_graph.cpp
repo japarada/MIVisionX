@@ -35,6 +35,14 @@ void perf_graph::setNumGPU(int numGPU)
 {
    ui->GPU_lcdNumber->display(numGPU);
 }
+void perf_graph::setTotalGPU(int totalGPU)
+{
+   ui->TotalGPU_lcdNumber->display(totalGPU);
+}
+void perf_graph::setPods(int numPods)
+{
+   ui->pods_lcdNumber->display(numPods);
+}
 void perf_graph::resetPerformanceView()
 {
     ui->fps_lcdNumber->display(0);
