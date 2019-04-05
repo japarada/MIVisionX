@@ -286,6 +286,12 @@ void inference_viewer::showPerfResults()
     state->performance.setModelName(state->modelName);
     state->performance.setStartTime(state->startTime);
     state->performance.setNumGPU(state->GPUs);
+#if defined(ENABLE_KUBERNETES_MODE)
+    // TBD: Set Actual Numbers
+    state->performance.setPods(1);
+    state->performance.setTotalGPU(state->GPUs*1);
+#endif
+
     state->performance.show();
 
 }
@@ -1178,6 +1184,11 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateElapsedTime(state->elapsedTime);
         state->performance.updateFPSValue(imagesPerSec);
         state->performance.updateTotalImagesValue(progress.images_received);
+#if defined(ENABLE_KUBERNETES_MODE)
+        // TBD: Set Actual Numbers
+        state->performance.setPods(8);
+        state->performance.setTotalGPU(state->GPUs*8);
+#endif
         if(imagesPerSec > 0) {
             QString text;
             text.sprintf("... %.1f images/sec", imagesPerSec);
