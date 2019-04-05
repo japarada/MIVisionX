@@ -75,6 +75,9 @@ inference_state::inference_state()
     perfButtonPressed = false;
     startTime =  "";
     elapsedTime = "";
+    // graph results
+    graphButtonRect = QRect(0, 0, 0, 0);
+    graphButtonPressed = false;
 }
 
 inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName,
@@ -767,6 +770,15 @@ void inference_viewer::mousePressEvent(QMouseEvent * event)
         {
             state->perfButtonPressed = true;
         }
+        // check graph button
+        state->graphButtonPressed = false;
+        if((x >= state->graphButtonRect.x()) &&
+           (x < (state->graphButtonRect.x() + state->graphButtonRect.width())) &&
+           (y >= state->graphButtonRect.y()) &&
+           (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
+        {
+            state->graphButtonPressed = true;
+        }
     }
 }
 
@@ -802,9 +814,17 @@ void inference_viewer::mouseReleaseEvent(QMouseEvent * event)
             //TBD Function
             showPerfResults();
         }
+        else if((x >= state->graphButtonRect.x()) &&
+                (x < (state->graphButtonRect.x() + state->graphButtonRect.width())) &&
+                (y >= state->graphButtonRect.y()) &&
+                (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
+        {
+            //TBD Function
+        }
         state->exitButtonPressed = false;
         state->saveButtonPressed = false;
         state->perfButtonPressed = false;
+        state->graphButtonPressed = false;
         // abort loading
         if(!state->imageLoadDone &&
            (x >= state->statusBarRect.x()) &&
@@ -867,9 +887,10 @@ void inference_viewer::paintEvent(QPaintEvent *)
     QString exitButtonText = " Close ";
     QString saveButtonText = " Save ";
     QString perfButtonText = "Performance";
+    QString graphButtonText = " Graph ";
     QFontMetrics fontMetrics(state->statusBarFont);
     int buttonTextWidth = fontMetrics.width(perfButtonText);
-    int statusBarX = 8 + 3*(10 + buttonTextWidth + 10 + 8), statusBarY = 8;
+    int statusBarX = 8 + 4*(10 + buttonTextWidth + 10 + 8), statusBarY = 8;
     int statusBarWidth = width() - 8 - statusBarX;
     int statusBarHeight = fontMetrics.height() + 16;
     int imageX = 8;
@@ -877,6 +898,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
     state->saveButtonRect = QRect(8, statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
     state->exitButtonRect = QRect(8 + (10 + buttonTextWidth + 10 + 8), statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
     state->perfButtonRect = QRect(8 + (70 + buttonTextWidth + 65 + 16), statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
+    state->graphButtonRect = QRect(8 + (195 + buttonTextWidth + 65 + 16), statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
     state->statusBarRect = QRect(statusBarX, statusBarY, statusBarWidth, statusBarHeight);
     QColor statusBarColorBackground(192, 192, 192);
     QColor statusBarColorLoad(255, 192, 64);
@@ -1203,10 +1225,12 @@ void inference_viewer::paintEvent(QPaintEvent *)
     painter.drawRoundedRect(state->exitButtonRect, 4, 4);
     painter.drawRoundedRect(state->saveButtonRect, 4, 4);
     painter.drawRoundedRect(state->perfButtonRect, 4, 4);
+    painter.drawRoundedRect(state->graphButtonRect, 4, 4);
     painter.setPen(buttonTextColor);
     painter.drawText(state->exitButtonRect, Qt::AlignCenter, exitButtonText);
     painter.drawText(state->saveButtonRect, Qt::AlignCenter, saveButtonText);
     painter.drawText(state->perfButtonRect, Qt::AlignCenter, perfButtonText);
+    painter.drawText(state->graphButtonRect, Qt::AlignCenter, graphButtonText);
 
     // in case fatal error, replace status text with the error message
     if(fatalError.length() > 0)

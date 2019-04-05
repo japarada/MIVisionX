@@ -91,6 +91,9 @@ public:
     QString startTime;
     QElapsedTimer timerElapsed;
     QString elapsedTime;
+    // performance graph
+    QRect graphButtonRect;
+    bool graphButtonPressed;
 };
 
 class inference_viewer : public QWidget
