@@ -54,16 +54,19 @@ void sort_indexes(const std::vector<T> &v, std::vector<size_t> &idx) {
 #if defined(ENABLE_KUBERNETES_MODE)
 void loadMapOfFiles(const std::string& path, Arguments * args)
 {
+
 	//make sure only one thread is doing the loading
 	args->lock();
 
 	//if loaded exit
 	if (mapfiles_.size())
 	{
+		std::cout << "\nloadMapOfFiles LOCK LOCK\n";
 		args->unlock();
 		return;
 	}
-	//std::cout << "\nloadMapOfFiles path=" << path << "\n";
+	
+	std::cout << "\nSTART loadMapOfFiles path=" << path << "\n";
 	//get list of files
 	DIR *dp;
 	struct dirent *ep;
@@ -100,7 +103,7 @@ void loadMapOfFiles(const std::string& path, Arguments * args)
 		(void)closedir(dp);
 	}
 	args->unlock();
-	//std::cout << "\n TOTAL " << mapfiles_.size() << "\n";
+	std::cout << "\n END TOTAL " << mapfiles_.size() << "\n";
 }
 
 #endif

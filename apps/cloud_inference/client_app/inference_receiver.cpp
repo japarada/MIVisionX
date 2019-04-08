@@ -41,7 +41,7 @@ inference_receiver::inference_receiver(
     topKValue = topKValue_;
     shadowFileBuffer = shadowFileBuffer_;
 #if defined(ENABLE_KUBERNETES_MODE)
-    is_connected= true;
+	state_ = IDLE;
 #endif
 }
 
@@ -72,9 +72,9 @@ void inference_receiver::getReceivedList(QVector<int>& indexQ, QVector<int>& lab
 }
 
 #if defined(ENABLE_KUBERNETES_MODE)
-bool inference_receiver::is_Connected()
+int inference_receiver::state()
 {
-  return is_connected;
+	return state_;
 }
 #endif
 
@@ -98,7 +98,7 @@ void inference_receiver::run()
     TcpConnection * connection = new TcpConnection(serverHost, serverPort, 3000, this);
     if(connection->connected()) {
  #if defined(ENABLE_KUBERNETES_MODE)
-        is_connected = true;
+		state_ = CONNECTED;
  #endif
         int nextImageToSend = 0;
         InfComCommand cmd;
@@ -138,6 +138,7 @@ void inference_receiver::run()
             }
             else if(cmd.command == INFCOM_CMD_SEND_IMAGES) {
 #if defined(ENABLE_KUBERNETES_MODE)
+				state_ = SENDING;
 				//reset complete flag as other thread could have set it to complete
 				progress->completed = false;
               //  progress->message = "";
@@ -283,7 +284,7 @@ void inference_receiver::run()
         qDebug("inference_receiver::run() terminated: errorCode=%d", progress->errorCode);
     }
 #if defined(ENABLE_KUBERNETES_MODE)	
-	is_connected = false; 
+	state_ = IDLE;
 #endif
 }
 

@@ -201,7 +201,7 @@ void inference_viewer::manageReceiversPool()
 	for (int i = 0; i < state->receiver_workers.size(); i++)
 	{
 		inference_receiver* c = state->receiver_workers[i];
-		if (c && !c->is_Connected())
+		if (c && (c->state() == receiver_state::IDLE))
 		{
 			//remove from pool 
 			state->receiver_workers.erase(state->receiver_workers.begin() + i);
@@ -288,7 +288,7 @@ void inference_viewer::showPerfResults()
     state->performance.setNumGPU(state->GPUs);
 #if defined(ENABLE_KUBERNETES_MODE)
     // TBD: Set Actual Numbers
-    state->performance.setPods(1);
+    state->performance.setPods(0);
     state->performance.setTotalGPU(state->GPUs*1);
 #endif
 
@@ -1185,9 +1185,18 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateFPSValue(imagesPerSec);
         state->performance.updateTotalImagesValue(progress.images_received);
 #if defined(ENABLE_KUBERNETES_MODE)
-        // TBD: Set Actual Numbers
-        state->performance.setPods(8);
-        state->performance.setTotalGPU(state->GPUs*8);
+		//update nunber of connections to inference serverw
+		int connections = 0;
+		for (int i = 0; i < state->receiver_workers.size(); i++)
+		{
+			inference_receiver* c = state->receiver_workers[i];
+			if (c && (c->state() == receiver_state::SENDING))
+			{
+				connections++;
+			}
+		}
+		state->performance.setPods(connections);
+        state->performance.setTotalGPU(state->GPUs*connections);
 #endif
         if(imagesPerSec > 0) {
             QString text;

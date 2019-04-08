@@ -23,6 +23,14 @@ struct runtime_receiver_status {
     int images_received;
 };
 
+#if defined(ENABLE_KUBERNETES_MODE)	
+enum receiver_state
+{
+	IDLE = 0,
+	CONNECTED,
+	SENDING
+};
+#endif
 class inference_receiver : public QObject
 {
     Q_OBJECT
@@ -42,7 +50,7 @@ public:
                          QVector<QVector<int> >& labelTopK, QVector<QVector<float> >& probTopK);
     float getPerfImagesPerSecond();
 #if defined(ENABLE_KUBERNETES_MODE)	
-    bool is_Connected();
+	int state();
 #endif
 signals:
     void finished();
@@ -80,7 +88,7 @@ private:
     int sendFileName;
     int topKValue;
 #if defined(ENABLE_KUBERNETES_MODE)	
-    bool is_connected;
+    int state_;
 #endif
 };
 
