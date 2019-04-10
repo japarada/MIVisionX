@@ -24,6 +24,10 @@
 #define INFCOM_RUNTIME_OPTIONS   ""
 #define HIERARCHY_PENALTY        0.2
 
+#if defined(ENABLE_KUBERNETES_MODE)	
+#define NUMBER_OF_CONNECTIONS  64
+#endif
+
 inference_state::inference_state()
 {
     // initialize
@@ -34,8 +38,10 @@ inference_state::inference_state()
     imageLoadCount = 0;
     imagePixmapDone = false;
     imagePixmapCount = 0;
+#if !defined(ENABLE_KUBERNETES_MODE)	
     receiver_thread = nullptr;
     receiver_worker = nullptr;
+#endif
     mouseClicked = false;
     mouseLeftClickX = 0;
     mouseLeftClickY = 0;
@@ -69,6 +75,9 @@ inference_state::inference_state()
     perfButtonPressed = false;
     startTime =  "";
     elapsedTime = "";
+    // graph results
+    graphButtonRect = QRect(0, 0, 0, 0);
+    graphButtonPressed = false;
 }
 
 inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName,
@@ -79,6 +88,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     QWidget(parent),
     ui(new Ui::inference_viewer),
     updateTimer{ nullptr }
+#if defined(ENABLE_KUBERNETES_MODE)
+	,
+	receivers_timer{ nullptr }
+#endif
 {
     state = new inference_state();
     state->dataLabels = dataLabels;
@@ -134,6 +147,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
 inference_viewer::~inference_viewer()
 {
     inference_receiver::abort();
+#if defined(ENABLE_KUBERNETES_MODE)
+	if (!receivers_timer)
+		receivers_timer->stop();
+#endif
     delete state;
     delete ui;
 }
@@ -143,6 +160,100 @@ void inference_viewer::errorString(QString /*err*/)
     qDebug("ERROR: inference_viewer: ...");
 }
 
+#if defined(ENABLE_KUBERNETES_MODE)
+void inference_viewer::startReceivers()
+{
+	for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+
+		QThread * qt = new QThread;
+		inference_receiver* rw = new inference_receiver(
+			state->serverHost, state->serverPort, state->modelName,
+			state->GPUs, state->inputDim, state->outputDim, INFCOM_RUNTIME_OPTIONS,
+			&state->imageBuffer, &progress, state->sendFileName, state->topKValue, &state->shadowFileBuffer);
+
+		state->receiver_threads.push_back(qt);
+		state->receiver_workers.push_back(rw);
+		rw->moveToThread(qt);
+		connect(rw, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+		connect(qt, SIGNAL(started()), rw, SLOT(run()));
+		connect(rw, SIGNAL(finished()), qt, SLOT(quit()));
+		connect(rw, SIGNAL(finished()), rw, SLOT(deleteLater()));
+		connect(qt, SIGNAL(finished()), qt, SLOT(deleteLater()));
+		qt->start();
+		qt->terminate();
+
+	}
+
+
+	if (!receivers_timer) {
+
+
+		receivers_timer = new QTimer(this);
+		connect(receivers_timer, SIGNAL(timeout()), this, SLOT(manageReceiversPool()));
+		receivers_timer->start(1000);
+
+	}
+	
+}
+
+void inference_viewer::manageReceiversPool()
+{
+
+
+	
+	for (int i = 0; i < state->receiver_workers.size(); i++)
+	{
+		inference_receiver* c = state->receiver_workers[i];
+		if (c && (c->state() == receiver_state::IDLE))
+		{
+			//remove from pool 
+			state->receiver_workers.erase(state->receiver_workers.begin() + i);
+			state->receiver_threads.erase(state->receiver_threads.begin() + i);
+
+			//create new worker thread and receiver
+			QThread * qt = new QThread;
+			inference_receiver* rw = new inference_receiver(
+				state->serverHost, state->serverPort, state->modelName,
+				state->GPUs, state->inputDim, state->outputDim, INFCOM_RUNTIME_OPTIONS,
+				&state->imageBuffer, &progress, state->sendFileName, state->topKValue, &state->shadowFileBuffer);
+
+			if (!qt || !rw)
+				break;
+
+			rw->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
+
+			state->receiver_threads.push_back(qt);
+			state->receiver_workers.push_back(rw);
+
+			rw->moveToThread(qt);
+			connect(rw, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+			connect(qt, SIGNAL(started()), rw, SLOT(run()));
+			connect(rw, SIGNAL(finished()), qt, SLOT(quit()));
+			connect(rw, SIGNAL(finished()), rw, SLOT(deleteLater()));
+			connect(qt, SIGNAL(finished()), qt, SLOT(deleteLater()));
+			qt->start();
+			qt->terminate();
+
+			//clean up terminated receiver
+			delete c;
+			break;
+		}
+	}
+}
+
+void inference_viewer::terminate()
+{
+	if (state->receiver_workers.size() && !progress.completed && !progress.errorCode) {
+		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+			state->receiver_workers[i]->abort();
+		}
+		for (int count = 0; count < 10 && !progress.completed; count++) {
+			QThread::msleep(100);
+		}
+	}
+	close();
+}
+#else
 void inference_viewer::startReceiver()
 {
     // start receiver thread
@@ -171,16 +282,37 @@ void inference_viewer::terminate()
     }
     close();
 }
+#endif
 
 void inference_viewer::showPerfResults()
 {
     state->performance.setModelName(state->modelName);
     state->performance.setStartTime(state->startTime);
     state->performance.setNumGPU(state->GPUs);
+#if defined(ENABLE_KUBERNETES_MODE)
+    // TBD: Set Actual Numbers
+    state->performance.setPods(0);
+    state->performance.setTotalGPU(state->GPUs*1);
+#endif
+
     state->performance.show();
 
 }
 
+void inference_viewer::showChartResults()
+{
+    state->chart.setModelName(state->modelName);
+    state->chart.setStartTime(state->startTime);
+    state->chart.setNumGPU(state->GPUs);
+#if defined(ENABLE_KUBERNETES_MODE)
+    // TBD: Set Actual Numbers
+    state->chart.setPods(0);
+    state->chart.setTotalGPU(state->GPUs*1);
+#endif
+
+    state->chart.show();
+
+}
 void inference_viewer::saveResults()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Inference Results"), nullptr, tr("Text Files (*.txt);;CSV Files (*.csv)"));
@@ -652,6 +784,15 @@ void inference_viewer::mousePressEvent(QMouseEvent * event)
         {
             state->perfButtonPressed = true;
         }
+        // check graph button
+        state->graphButtonPressed = false;
+        if((x >= state->graphButtonRect.x()) &&
+           (x < (state->graphButtonRect.x() + state->graphButtonRect.width())) &&
+           (y >= state->graphButtonRect.y()) &&
+           (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
+        {
+            state->graphButtonPressed = true;
+        }
     }
 }
 
@@ -687,9 +828,18 @@ void inference_viewer::mouseReleaseEvent(QMouseEvent * event)
             //TBD Function
             showPerfResults();
         }
+        else if((x >= state->graphButtonRect.x()) &&
+                (x < (state->graphButtonRect.x() + state->graphButtonRect.width())) &&
+                (y >= state->graphButtonRect.y()) &&
+                (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
+        {
+            showChartResults();
+            //TBD Function
+        }
         state->exitButtonPressed = false;
         state->saveButtonPressed = false;
         state->perfButtonPressed = false;
+        state->graphButtonPressed = false;
         // abort loading
         if(!state->imageLoadDone &&
            (x >= state->statusBarRect.x()) &&
@@ -721,9 +871,17 @@ void inference_viewer::keyReleaseEvent(QKeyEvent * event)
         terminate();
     }
     else if(event->key() == Qt::Key_A) {
+#if defined(ENABLE_KUBERNETES_MODE)
+        if(progress.completed_decode &&  state->receiver_workers.size()) {
+			for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+				state->receiver_workers[i]->abort();
+			}
+        }
+#else
         if(progress.completed_decode && state->receiver_worker) {
                 state->receiver_worker->abort();
         }
+#endif
     }
     else if(event->key() == Qt::Key_S) {
         saveResults();
@@ -744,9 +902,10 @@ void inference_viewer::paintEvent(QPaintEvent *)
     QString exitButtonText = " Close ";
     QString saveButtonText = " Save ";
     QString perfButtonText = "Performance";
+    QString graphButtonText = " Graph ";
     QFontMetrics fontMetrics(state->statusBarFont);
     int buttonTextWidth = fontMetrics.width(perfButtonText);
-    int statusBarX = 8 + 3*(10 + buttonTextWidth + 10 + 8), statusBarY = 8;
+    int statusBarX = 8 + 4*(10 + buttonTextWidth + 10 + 8), statusBarY = 8;
     int statusBarWidth = width() - 8 - statusBarX;
     int statusBarHeight = fontMetrics.height() + 16;
     int imageX = 8;
@@ -754,6 +913,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
     state->saveButtonRect = QRect(8, statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
     state->exitButtonRect = QRect(8 + (10 + buttonTextWidth + 10 + 8), statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
     state->perfButtonRect = QRect(8 + (70 + buttonTextWidth + 65 + 16), statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
+    state->graphButtonRect = QRect(8 + (195 + buttonTextWidth + 65 + 16), statusBarY, 10 + buttonTextWidth + 10, statusBarHeight);
     state->statusBarRect = QRect(statusBarX, statusBarY, statusBarWidth, statusBarHeight);
     QColor statusBarColorBackground(192, 192, 192);
     QColor statusBarColorLoad(255, 192, 64);
@@ -866,7 +1026,11 @@ void inference_viewer::paintEvent(QPaintEvent *)
             if(state->sendFileName){
                 // extract only the last folder and filename for shadow
                 QStringList fileNameList = fileName.split("/");
-                QString subFileName = fileNameList.at(fileNameList.size()- 2) + "/" + fileNameList.last();
+#if defined(ENABLE_KUBERNETES_MODE)
+				QString subFileName = fileNameList.last();
+#else
+				QString subFileName = fileNameList.at(fileNameList.size() - 2) + "/" + fileNameList.last();
+#endif
                 //printf("Inference viewer adding file %s to shadow array of size %d\n", subFileName.toStdString().c_str(), byteArray.size());
                 state->shadowFileBuffer.push_back(subFileName);
             }
@@ -904,14 +1068,31 @@ void inference_viewer::paintEvent(QPaintEvent *)
             state->imagePixmapCount++;
             progress.images_decoded = state->imagePixmapCount;
         }
-        if(state->receiver_worker)
+#if defined(ENABLE_KUBERNETES_MODE)
+		if (state->receiver_workers.size())
+		{
+			for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+				state->receiver_workers[i]->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
+			}
+		}
+#else
+ 		if(state->receiver_worker)
             state->receiver_worker->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
-    }
+#endif
+	}
 
+#if defined(ENABLE_KUBERNETES_MODE)
+    if(!state->receiver_workers.size() && state->imagePixmapCount >= imageCountLimitForInferenceStart && state->imageDataSize > 0) {
+        startReceivers();
+		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+			state->receiver_workers[i]->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
+		}
+#else
     if(!state->receiver_worker && state->imagePixmapCount >= imageCountLimitForInferenceStart && state->imageDataSize > 0) {
         startReceiver();
         state->receiver_worker->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
-    }
+#endif
+	}
 
     // initialize painter object
     QPainter painter(this);
@@ -991,10 +1172,19 @@ void inference_viewer::paintEvent(QPaintEvent *)
     }
 
     // get image render list from receiver
+#if defined(ENABLE_KUBERNETES_MODE)
+	if (state->receiver_workers.size()) {
+		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+			//state->receiver_workers[]
+			state->receiver_workers[i]->getReceivedList(state->resultImageIndex, state->resultImageLabel, state->resultImageSummary,
+				state->resultImageLabelTopK, state->resultImageProbTopK);
+		}
+#else
     if(state->receiver_worker) {
         state->receiver_worker->getReceivedList(state->resultImageIndex, state->resultImageLabel, state->resultImageSummary,
                                                 state->resultImageLabelTopK, state->resultImageProbTopK);
-    }
+#endif
+	}
 
     // trim the render list to viewable area
     int numCols = (width() - imageX) / ICON_STRIDE * 4;
@@ -1011,8 +1201,18 @@ void inference_viewer::paintEvent(QPaintEvent *)
             imageRows = imageCount / numCols;
             imageCols = imageCount % numCols;
         }
+
+#if defined(ENABLE_KUBERNETES_MODE)
         // get received image/rate
-        float imagesPerSec = state->receiver_worker->getPerfImagesPerSecond();
+        float imagesPerSec = 0.0;
+
+		for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
+			imagesPerSec += state->receiver_workers[i]->getPerfImagesPerSecond();
+		}
+#else
+ 		float imagesPerSec = state->receiver_worker->getPerfImagesPerSecond();
+#endif
+		
         int E_secs = state->timerElapsed.elapsed() / 1000;
         int E_mins = (E_secs / 60) % 60;
         int E_hours = (E_secs / 3600);
@@ -1021,6 +1221,20 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateElapsedTime(state->elapsedTime);
         state->performance.updateFPSValue(imagesPerSec);
         state->performance.updateTotalImagesValue(progress.images_received);
+#if defined(ENABLE_KUBERNETES_MODE)
+		//update nunber of connections to inference serverw
+		int connections = 0;
+		for (int i = 0; i < state->receiver_workers.size(); i++)
+		{
+			inference_receiver* c = state->receiver_workers[i];
+			if (c && (c->state() == receiver_state::SENDING))
+			{
+				connections++;
+			}
+		}
+		state->performance.setPods(connections);
+        state->performance.setTotalGPU(state->GPUs*connections);
+#endif
         if(imagesPerSec > 0) {
             QString text;
             text.sprintf("... %.1f images/sec", imagesPerSec);
@@ -1035,10 +1249,12 @@ void inference_viewer::paintEvent(QPaintEvent *)
     painter.drawRoundedRect(state->exitButtonRect, 4, 4);
     painter.drawRoundedRect(state->saveButtonRect, 4, 4);
     painter.drawRoundedRect(state->perfButtonRect, 4, 4);
+    painter.drawRoundedRect(state->graphButtonRect, 4, 4);
     painter.setPen(buttonTextColor);
     painter.drawText(state->exitButtonRect, Qt::AlignCenter, exitButtonText);
     painter.drawText(state->saveButtonRect, Qt::AlignCenter, saveButtonText);
     painter.drawText(state->perfButtonRect, Qt::AlignCenter, perfButtonText);
+    painter.drawText(state->graphButtonRect, Qt::AlignCenter, graphButtonText);
 
     // in case fatal error, replace status text with the error message
     if(fatalError.length() > 0)
