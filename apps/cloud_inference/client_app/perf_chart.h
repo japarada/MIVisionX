@@ -1,13 +1,13 @@
 #ifndef PERF_CHART_H
 #define PERF_CHART_H
 
-#include <QDialog>
+#include <QMainWindow>
 
 namespace Ui {
 class perf_chart;
 }
 
-class perf_chart : public QDialog
+class perf_chart : public QMainWindow
 {
     Q_OBJECT
 
@@ -20,16 +20,16 @@ private:
     float maxFPS;
 
 public slots:
-     void closePerformanceView();
-     void resetPerformanceView();
-     void setModelName(QString ModelName);
-     void setNumGPU(int numGPU);
-     void setTotalGPU(int totalGPU);
-     void setPods(int numPods);
-     void setStartTime(QString startTime);
-     void updateElapsedTime(QString elapsedTime);
-     void updateFPSValue(float fps);
-     void updateTotalImagesValue(int images);
+//     void closePerformanceView();
+//     void resetPerformanceView();
+//     void setModelName(QString ModelName);
+//     void setNumGPU(int numGPU);
+//     void setTotalGPU(int totalGPU);
+//     void setPods(int numPods);
+//     void setStartTime(QString startTime);
+//     void updateElapsedTime(QString elapsedTime);
+//     void updateFPSValue(float fps);
+//     void updateTotalImagesValue(int images);
 };
 
 #endif // PERF_CHART_H

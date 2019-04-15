@@ -301,9 +301,9 @@ void inference_viewer::showPerfResults()
 
 void inference_viewer::showChartResults()
 {
-    state->chart.setModelName(state->modelName);
-    state->chart.setStartTime(state->startTime);
-    state->chart.setNumGPU(state->GPUs);
+    //state->chart.setModelName(state->modelName);
+    //state->chart.setStartTime(state->startTime);
+    //state->chart.setNumGPU(state->GPUs);
 #if defined(ENABLE_KUBERNETES_MODE)
     // TBD: Set Actual Numbers
     state->chart.setPods(0);
