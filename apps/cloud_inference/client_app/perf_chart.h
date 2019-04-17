@@ -2,6 +2,8 @@
 #define PERF_CHART_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include <QtWidgets>
 
 namespace Ui {
 class perf_chart;
@@ -17,9 +19,10 @@ public:
 
 private:
     Ui::perf_chart *ui;
+    QTimer timer;
     float maxFPS;
+    void initGraph();
 
-public slots:
 //     void closePerformanceView();
 //     void resetPerformanceView();
 //     void setModelName(QString ModelName);

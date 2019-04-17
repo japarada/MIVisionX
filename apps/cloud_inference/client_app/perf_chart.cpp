@@ -2,20 +2,24 @@
 #include "ui_perf_chart.h"
 
 perf_chart::perf_chart(QWidget *parent) :
-    QWidget(parent),
+    QMainWindow(parent),
     ui(new Ui::perf_chart)
 {
     ui->setupUi(this);
     maxFPS = 0;
-    ui->CustomPlot->addGraph();
-    //connect(ui->close_pushButton, &QAbstractButton::clicked, this, &perf_chart::closePerformanceView);
-    //connect(ui->reset_pushButton, &QAbstractButton::clicked, this, &perf_chart::resetPerformanceView);
+    initGraph();
 }
 
 perf_chart::~perf_chart()
 {
     delete ui;
 }
+
+void perf_chart::initGraph()
+{
+    ui->CustomPlot->addGraph();
+}
+
 //void perf_chart::closePerformanceView()
 //{
 //   this->close();
