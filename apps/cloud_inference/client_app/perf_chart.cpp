@@ -17,8 +17,82 @@ perf_chart::~perf_chart()
 
 void perf_chart::initGraph()
 {
-    ui->CustomPlot->addGraph();
+    ui->widget_RealTimeGraph->addGraph();
+    ui->widget_RealTimeGraph->graph(0)->setPen(QPen(Qt::red));
+    ui->widget_RealTimeGraph->graph(0)->setAntialiasedFill(false);
+
+    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+    timeTicker->setTimeFormat("%h:%m:%s");
+
+    // x axis
+    ui->widget_RealTimeGraph->xAxis->setTicker(timeTicker);
+    ui->widget_RealTimeGraph->axisRect()->setupFullAxesBox();
+    ui->widget_RealTimeGraph->xAxis->setTickLabelFont(QFont(QFont().family(), 8));
+    ui->widget_RealTimeGraph->xAxis->setLabel("Time");
+
+    ui->widget_RealTimeGraph->yAxis->setLabel("FPS");
+
+    ui->widget_RealTimeGraph->yAxis->setRange(0, 1500);
+    ui->widget_RealTimeGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc));
+    ui->widget_RealTimeGraph->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+    ui->widget_RealTimeGraph->legend->setVisible(true);
+    ui->widget_RealTimeGraph->legend->setBrush(QBrush(QColor(255,255,255,150)));
+
+    ui->widget_RealTimeGraph->axisRect()->insetLayout()->setInsetAlignment(0,Qt::AlignLeft|Qt::AlignTop);
+
+    // make left and bottom axes transfer their ranges to right and top axes:
+    connect(ui->widget_RealTimeGraph->xAxis, SIGNAL(rangeChanged(QCPRange)), ui->widget_RealTimeGraph->xAxis2, SLOT(setRange(QCPRange)));
+    connect(ui->widget_RealTimeGraph->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->widget_RealTimeGraph->yAxis2, SLOT(setRange(QCPRange)));
+
+    // setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
+    connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+    timer.start(0);
 }
+
+void perf_chart::updateFPSValue(int fpsValue) {
+    mFPSValue = fpsValue;
+}
+
+void perf_chart::RealtimeDataSlot()
+{
+    static QTime time(QTime::currentTime());
+    //qsrand(QTime::currentTime().msecsSinceStartOfDay());
+
+    // calculate two new data points:
+    double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
+    static double lastPointKey = 0;
+    //ui->widget_RealTimeGraph->graph(0)->addData(key, mFPSValue);
+    QCPItemText *item=new QCPItemText(ui->widget_RealTimeGraph);
+
+    item->setPositionAlignment(Qt::AlignVCenter|Qt::AlignHCenter);
+    //item->position->setType(QCPItemPosition::ptAxisRectRatio);
+    //item->position->setCoords(key,value+10);
+    item->setColor(ui->widget_RealTimeGraph->graph(0)->pen().color());
+    //item->setText(QString::number(value));
+
+    if (key-lastPointKey > 0.001) // at most add point every 2 ms
+    {
+        ui->widget_RealTimeGraph->graph(0)->addData(key, mFPSValue);
+        //ui->widget_RealTimeGraph->graph(0)->rescaleValueAxis();
+        lastPointKey = key;
+    }
+
+    // make key axis range scroll with the data (at a constant range size of 8):
+    ui->widget_RealTimeGraph->xAxis->setRange(key+10, 50, Qt::AlignRight);
+    ui->widget_RealTimeGraph->replot();
+}
+
+void perf_chart::on_pushButton_Start_clicked()
+{
+    timer.start(1000);
+}
+
+void perf_chart::on_pushButton_Stop_clicked()
+{
+    timer.stop();
+}
+
 
 //void perf_chart::closePerformanceView()
 //{

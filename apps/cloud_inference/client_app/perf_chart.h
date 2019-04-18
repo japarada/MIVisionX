@@ -21,7 +21,14 @@ private:
     Ui::perf_chart *ui;
     QTimer timer;
     float maxFPS;
+    int mFPSValue;
     void initGraph();
+
+public slots:
+    void RealtimeDataSlot();
+    void updateFPSValue(int fpsValue);
+    void on_pushButton_Start_clicked();
+    void on_pushButton_Stop_clicked();
 
 //     void closePerformanceView();
 //     void resetPerformanceView();

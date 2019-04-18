@@ -1221,6 +1221,8 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateElapsedTime(state->elapsedTime);
         state->performance.updateFPSValue(imagesPerSec);
         state->performance.updateTotalImagesValue(progress.images_received);
+
+        //state->chart.updateFPSValue(imagesPerSec);
 #if defined(ENABLE_KUBERNETES_MODE)
 		//update nunber of connections to inference serverw
 		int connections = 0;

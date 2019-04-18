@@ -6,7 +6,7 @@
 
 QT     += core gui network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 # With C++11 support
 CONFIG += c++11
@@ -56,6 +56,5 @@ FORMS += \
         inference_panel.ui \
         perf_graph.ui \
         perf_chart.ui
-
 RESOURCES += \
     resources.qrc
