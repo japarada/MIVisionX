@@ -251,6 +251,7 @@ void inference_viewer::terminate()
 			QThread::msleep(100);
 		}
 	}
+    state->chart.closeChartView();
 	close();
 }
 #else
@@ -301,18 +302,9 @@ void inference_viewer::showPerfResults()
 
 void inference_viewer::showChartResults()
 {
-    //state->chart.setModelName(state->modelName);
-    //state->chart.setStartTime(state->startTime);
-    //state->chart.setNumGPU(state->GPUs);
-#if defined(ENABLE_KUBERNETES_MODE)
-    // TBD: Set Actual Numbers
-    state->chart.setPods(0);
-    state->chart.setTotalGPU(state->GPUs*1);
-#endif
-
     state->chart.show();
-
 }
+
 void inference_viewer::saveResults()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Inference Results"), nullptr, tr("Text Files (*.txt);;CSV Files (*.csv)"));
@@ -833,10 +825,7 @@ void inference_viewer::mouseReleaseEvent(QMouseEvent * event)
                 (y >= state->graphButtonRect.y()) &&
                 (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
         {
-<<<<<<< HEAD
             showChartResults();
-=======
->>>>>>> japarada/master
             //TBD Function
         }
         state->exitButtonPressed = false;
@@ -891,6 +880,9 @@ void inference_viewer::keyReleaseEvent(QKeyEvent * event)
     }
     else if(event->key() == Qt::Key_P) {
         showPerfResults();
+    }
+    else if(event->key() == Qt::Key_C) {
+        showChartResults();
     }
 }
 
@@ -1225,7 +1217,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateFPSValue(imagesPerSec);
         state->performance.updateTotalImagesValue(progress.images_received);
 
-        //state->chart.updateFPSValue(imagesPerSec);
+        state->chart.updateFPSValue(imagesPerSec);
 
 #if defined(ENABLE_KUBERNETES_MODE)
 		//update nunber of connections to inference serverw
@@ -1240,6 +1232,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		}
 		state->performance.setPods(connections);
         state->performance.setTotalGPU(state->GPUs*connections);
+        state->chart.setPods(connections);
 #endif
         if(imagesPerSec > 0) {
             QString text;

@@ -20,26 +20,15 @@ public:
 private:
     Ui::perf_chart *ui;
     QTimer timer;
-    float maxFPS;
+    int mMaxFPS = 0;
     int mFPSValue;
+    int mLastPod;
     void initGraph();
 
 public slots:
     void RealtimeDataSlot();
     void updateFPSValue(int fpsValue);
-    void on_pushButton_Start_clicked();
-    void on_pushButton_Stop_clicked();
-
-//     void closePerformanceView();
-//     void resetPerformanceView();
-//     void setModelName(QString ModelName);
-//     void setNumGPU(int numGPU);
-//     void setTotalGPU(int totalGPU);
-//     void setPods(int numPods);
-//     void setStartTime(QString startTime);
-//     void updateElapsedTime(QString elapsedTime);
-//     void updateFPSValue(float fps);
-//     void updateTotalImagesValue(int images);
+    void setPods(int numPods);
+    void closeChartView();
 };
-
 #endif // PERF_CHART_H
