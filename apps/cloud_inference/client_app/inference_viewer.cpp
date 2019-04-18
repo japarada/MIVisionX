@@ -833,7 +833,10 @@ void inference_viewer::mouseReleaseEvent(QMouseEvent * event)
                 (y >= state->graphButtonRect.y()) &&
                 (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
         {
+<<<<<<< HEAD
             showChartResults();
+=======
+>>>>>>> japarada/master
             //TBD Function
         }
         state->exitButtonPressed = false;
@@ -1223,6 +1226,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateTotalImagesValue(progress.images_received);
 
         //state->chart.updateFPSValue(imagesPerSec);
+
 #if defined(ENABLE_KUBERNETES_MODE)
 		//update nunber of connections to inference serverw
 		int connections = 0;
