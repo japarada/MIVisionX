@@ -38,7 +38,7 @@ SOURCES += \
         inference_panel.cpp \
         perf_graph.cpp \
         perf_chart.cpp \
-    qcustomplot.cpp
+        qcustomplot.cpp
 
 HEADERS += \
         inference_viewer.h \
@@ -51,12 +51,13 @@ HEADERS += \
         inference_panel.h \
         perf_graph.h \
         perf_chart.h \
-    qcustomplot.h
+        qcustomplot.h
 
 FORMS += \
         inference_viewer.ui \
         inference_panel.ui \
         perf_graph.ui \
         perf_chart.ui
+
 RESOURCES += \
     resources.qrc

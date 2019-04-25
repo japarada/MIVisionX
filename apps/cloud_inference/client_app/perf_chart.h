@@ -22,13 +22,15 @@ private:
     QTimer timer;
     int mMaxFPS = 0;
     int mFPSValue;
-    int mLastPod;
+    int mNumPods;
+    double mScaleValueX;
     void initGraph();
 
 public slots:
     void RealtimeDataSlot();
     void updateFPSValue(int fpsValue);
     void setPods(int numPods);
+    void rescaleAxis(double key);
     void closeChartView();
 };
 #endif // PERF_CHART_H
