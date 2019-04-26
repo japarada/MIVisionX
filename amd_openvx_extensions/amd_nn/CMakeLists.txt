@@ -79,6 +79,7 @@ list(APPEND SOURCES
     src/permute_layer.cpp
     src/prior_box_layer.cpp
     src/crop_layer.cpp
+    src/crop_and_resize_layer.cpp
     )
 
 add_library(vx_nn SHARED ${SOURCES})
@@ -88,6 +89,7 @@ install (TARGETS vx_nn DESTINATION lib)
 install (FILES include/vx_amd_nn.h DESTINATION include)
 install (DIRECTORY ../../model_compiler DESTINATION .)
 install (DIRECTORY ../../toolkit DESTINATION .)
+install (DIRECTORY ../../apps DESTINATION .)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")

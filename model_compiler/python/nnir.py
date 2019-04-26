@@ -74,7 +74,9 @@ class IrAttr:
             , 'dim_round_mode' : 'floor' # rounding mode for output dim calculation: floor, ceil
             , 'mode' : 0                 # attribute to differentiate layer modes.
             , 'shape' : []               # shape attribute
-            , 'offset' : []              # list of offsets
+            , 'scale' : 1                # scale attribute
+            , 'coord' : [0, 0]           # [x,y]
+            , 'offset' : []               # list of offsets
             , 'order'  : []              # order for permute
             , 'min_size' : 0.0             # minimum size of prior
             , 'max_size' : 0.0             # maximum size of prior
@@ -158,9 +160,10 @@ class IrNode:
             'transpose' : 1,
             'copy' : 1,
             'crop' : 1,
+            'crop_and_resize': 1,
             'permute' : 1,
             'prior_box' : 1,
-            'flatten'  : 1,
+            'flatten'  : 1
         }
 
     def set(self,type,inputs,outputs,attr):
@@ -381,6 +384,8 @@ class IrGraph:
                 elif node.type in ['reshape']:
                     input = self.tensor_dict[node.inputs[0]]
                     param = node.attr.get('shape')
+                    if not param:
+                        param = input.shape
                     icount = 1
                     ocount = 1
                     out_shape = [0,0,0,0]                    
@@ -465,8 +470,12 @@ class IrGraph:
                 elif node.type in ['flatten']:
                     input = self.tensor_dict[node.inputs[0]]
                     axis = node.attr.get("axis")
-                    if axis == 1:
+                    if axis == 0:
+                        shape = [1, input.shape[0]*input.shape[1]*input.shape[2]*input.shape[3], 1, 1]
+                    elif axis == 1:
                         shape = [input.shape[0], input.shape[1]*input.shape[2]*input.shape[3], 1, 1]
+                    else:
+                        raise ValueError("Flatten: unsupoorted flatten: " + str(axis))
                     local = IrTensor()
                     local.setName(output)
                     local.setInfo(input.type, shape)
@@ -488,6 +497,19 @@ class IrGraph:
                     local.setInfo(input.type, shape)
                     local.setFormat(input.format)
                     self.addLocal(local)
+                elif node.type in ['crop_and_resize']:
+                    input = self.tensor_dict[node.inputs[0]]
+                    shape = node.attr.get('shape')
+                    scaleFactor = node.attr.get('scale')
+                    width = shape[0]
+                    height = shape[1]
+                    out_shape = [input.shape[0], input.shape[1], height*scaleFactor, width*scaleFactor]
+                    local = IrTensor()
+                    local.setName(output)
+                    local.setInfo(input.type, out_shape)
+                    local.setFormat(input.format)
+                    self.addLocal(local)
+
                 else:
                     raise ValueError("Unsupported IR node type: {}".format(node.type))
 
