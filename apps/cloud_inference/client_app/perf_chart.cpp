@@ -29,10 +29,12 @@ void perf_chart::initGraph()
     ui->CustomPlot->xAxis->setTicker(timeTicker);
     ui->CustomPlot->xAxis->setTickLabelFont(QFont(QFont().family(), 12));
     ui->CustomPlot->xAxis->setLabel("Time Elapsed");
+    ui->CustomPlot->xAxis->setLabelFont((QFont(QFont().family(), 20)));
 
     // y axis
     ui->CustomPlot->yAxis->setTickLabelFont(QFont(QFont().family(), 12));
     ui->CustomPlot->yAxis->setLabel("FPS");
+    ui->CustomPlot->yAxis->setLabelFont((QFont(QFont().family(), 20)));
 
     ui->CustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
     ui->CustomPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
@@ -64,7 +66,7 @@ void perf_chart::RealtimeDataSlot()
             text->setPen(QPen(Qt::black));
             lastNumPods = mNumPods;
             text->position->setCoords(key - mRangeX * 0.1, mFPSValue + mRangeY * 0.1);
-            mPodsVector.push_back(text);
+            //mPodsVector.push_back(text);
         }
     }
     rescaleAxis(key);
@@ -103,7 +105,7 @@ void perf_chart::rescaleAxis(double key) {
     }
     mRangeY = mMaxFPS*1.5;
     ui->CustomPlot->yAxis->setRange(0, mRangeY);
-    mPodsVector[0]->position->setCoords(100, 100);
+//    mPodsVector[0]->position->setCoords(100, 100);
 //    for (unsigned long i=0; i<mPodsVector.size(); i++) {
 //        double x = mPodsVector[i]->position->key();
 //        double y = mPodsVector[i]->position->value();
