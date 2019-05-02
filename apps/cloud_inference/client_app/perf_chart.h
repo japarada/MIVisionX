@@ -19,7 +19,7 @@ public:
 
 private:
     Ui::perf_chart *ui;
-    QTimer timer;
+    QTimer timer, timer2;
     int mMaxFPS = 0;
     int mFPSValue;
     int mNumPods;
@@ -32,5 +32,6 @@ public slots:
     void setPods(int numPods);
     void rescaleAxis(double key);
     void closeChartView();
+    void colorSelected();
 };
 #endif // PERF_CHART_H
