@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QtWidgets>
+#include <vector>
+#include <qcustomplot.h>
 
 namespace Ui {
 class perf_chart;
@@ -19,12 +21,14 @@ public:
 
 private:
     Ui::perf_chart *ui;
-    QTimer timer, timer2;
+    QTimer timer;
     int mMaxFPS = 0;
     int mFPSValue;
     int mNumPods;
-    double mScaleValueX;
+    double mRangeX;
+    double mRangeY;
     void initGraph();
+    std::vector<QCPItemText *> mPodsVector;
 
 public slots:
     void RealtimeDataSlot();
@@ -32,6 +36,5 @@ public slots:
     void setPods(int numPods);
     void rescaleAxis(double key);
     void closeChartView();
-    void colorSelected();
 };
 #endif // PERF_CHART_H
