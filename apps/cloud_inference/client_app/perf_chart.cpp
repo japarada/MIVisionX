@@ -8,7 +8,6 @@ perf_chart::perf_chart(QWidget *parent) :
     ui->setupUi(this);
     mFPSValue = 0;
     mMaxFPS = 0;
-    mScaleValueX = 5;
     initGraph();
 }
 
@@ -20,23 +19,22 @@ perf_chart::~perf_chart()
 void perf_chart::initGraph()
 {
     ui->CustomPlot->addGraph();
-
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
 
-    // set default time duration to rb1 value
-    ui->rb1->setChecked(1);
+    // set default time duration to rb2 value
+    ui->rb2->setChecked(1);
 
     // x axis
     ui->CustomPlot->xAxis->setTicker(timeTicker);
-    ui->CustomPlot->xAxis->setTickLabelFont(QFont(QFont().family(), 8));
+    ui->CustomPlot->xAxis->setTickLabelFont(QFont(QFont().family(), 12));
     ui->CustomPlot->xAxis->setLabel("Time Elapsed");
 
     // y axis
+    ui->CustomPlot->yAxis->setTickLabelFont(QFont(QFont().family(), 12));
     ui->CustomPlot->yAxis->setLabel("FPS");
 
     ui->CustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
-//    ui->CustomPlot->axisRect()->setupFullAxesBox();
     ui->CustomPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
 
     // make left and bottom axes transfer their ranges to right and top axes:
@@ -58,29 +56,15 @@ void perf_chart::RealtimeDataSlot()
     {
         ui->CustomPlot->graph(0)->addData(key, mFPSValue);
         lastPointKey = key;
-        if (ui->coloredGraph->isChecked())
-        {
-            QCPDataRange range;
-            range.setBegin(5);
-            range.setEnd(10);
-            QCPDataSelection selection;
-            selection.addDataRange(range);
-            ui->CustomPlot->graph(0)->setPen(QPen(Qt::blue));
-            ui->CustomPlot->graph(0)->setSelection(selection);
-            ui->CustomPlot->graph(0)->selectionDecorator()->setPen(QPen(Qt::red));
 
-
-        } else
-        {
-            ui->CustomPlot->graph(0)->setPen(QPen(Qt::green));
-        }
         if (lastNumPods != mNumPods) {
             QCPItemText *text = new QCPItemText(ui->CustomPlot);
-            text->position->setCoords(key - mScaleValueX, mFPSValue + 5);
             text->setText("Pod(s) = " % QString::number(mNumPods));
             text->setFont(QFont(font().family(), 10));
             text->setPen(QPen(Qt::black));
             lastNumPods = mNumPods;
+            text->position->setCoords(key - mRangeX * 0.1, mFPSValue + mRangeY * 0.1);
+            mPodsVector.push_back(text);
         }
     }
     rescaleAxis(key);
@@ -103,15 +87,28 @@ void perf_chart::rescaleAxis(double key) {
     ui->CustomPlot->graph(0)->rescaleValueAxis();
     if (ui->rb1->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+20, 30, Qt::AlignRight);
-        mScaleValueX = 4;
+        mRangeX = 30;
     } else if (ui->rb2->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+30, 60, Qt::AlignRight);
-        mScaleValueX = 6;
+        mRangeX = 60;
     } else if (ui->rb3->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+30, 120, Qt::AlignRight);
-        mScaleValueX = 9;
+        mRangeX = 120;
+    } else if (ui->rb4->isChecked()) {
+        ui->CustomPlot->xAxis->setRange(key+30, 240, Qt::AlignRight);
+        mRangeX = 240;
+    } else if (ui->rb5->isChecked()) {
+        ui->CustomPlot->xAxis->setRange(key+30, 480, Qt::AlignRight);
+        mRangeX = 480;
     }
-    ui->CustomPlot->yAxis->setRange(0, mMaxFPS+500);
+    mRangeY = mMaxFPS*1.5;
+    ui->CustomPlot->yAxis->setRange(0, mRangeY);
+    mPodsVector[0]->position->setCoords(100, 100);
+//    for (unsigned long i=0; i<mPodsVector.size(); i++) {
+//        double x = mPodsVector[i]->position->key();
+//        double y = mPodsVector[i]->position->value();
+//        mPodsVector[i]->position->setCoords(x - mRangeX * 0.1, y + mRangeY * 0.1);
+//    }
     ui->CustomPlot->replot();
 }
 

@@ -27,7 +27,8 @@ tensor_type_nnir2openvx = {
     'F016' : 'VX_TYPE_FLOAT16',
     'U016' : 'VX_TYPE_UINT16',
     'I016' : 'VX_TYPE_INT16',
-    'U008' : 'VX_TYPE_UINT8'
+    'U008' : 'VX_TYPE_UINT8',
+    'I064' : 'VX_TYPE_INT64',
 }
 
 def generateLicenseForCPP(f):
@@ -243,6 +244,9 @@ static vx_status initializeTensor(vx_context context, vx_tensor tensor, FILE * f
     }
     else if(data_type == VX_TYPE_UINT16 || data_type == VX_TYPE_INT16 || data_type == VX_TYPE_FLOAT16) {
         itemsize = sizeof(vx_uint16);
+    }
+    else if(data_type == VX_TYPE_INT64) {
+        itemsize = sizeof(vx_int64);
     }
     vx_size count = dims[0] * dims[1] * dims[2] * dims[3];
 
@@ -1830,7 +1834,14 @@ Usage: python nnir2openvx.py [OPTIONS] <nnirInputFolder> <outputFolder>
     outputFolder = sys.argv[pos+1]
     print('reading IR model from ' + inputFolder + ' ...')
     graph = IrGraph()
-    graph.fromFile(inputFolder)   
+    graph.fromFile(inputFolder)
+    for tensor in graph.outputs:
+        if len(tensor.shape) == 1:
+            print('#OUTPUT-TENSOR: %s %d %d %d %d ' %(tensor.name, tensor.shape[0], 1, 1, 1));    
+        elif len(tensor.shape) == 2:
+            print('#OUTPUT-TENSOR: %s %d %d %d %d ' %(tensor.name, tensor.shape[0], tensor.shape[1], 1, 1));
+        elif len(tensor.shape) == 4:
+            print('#OUTPUT-TENSOR: %s %d %d %d %d ' %(tensor.name, tensor.shape[0], tensor.shape[1], tensor.shape[2], tensor.shape[3]));
     print('creating C code in ' + outputFolder + ' ...')
     generateCode(graph,argmaxOutput,outputFolder)
 
