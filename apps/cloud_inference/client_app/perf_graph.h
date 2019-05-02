@@ -24,6 +24,8 @@ public slots:
      void resetPerformanceView();
      void setModelName(QString ModelName);
      void setNumGPU(int numGPU);
+     void setTotalGPU(int totalGPU);
+     void setPods(int numPods);
      void setStartTime(QString startTime);
      void updateElapsedTime(QString elapsedTime);
      void updateFPSValue(float fps);

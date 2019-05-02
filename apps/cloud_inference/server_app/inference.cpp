@@ -17,6 +17,20 @@
 #endif
 #endif
 
+
+#if defined(ENABLE_KUBERNETES_MODE)
+#include <stdio.h>
+#include <sys/types.h>
+#include <dirent.h>
+
+//globals
+std::map<std::string, char*> mapfiles_;
+std::map<std::string, int> mapfilesSizes_;
+
+#define ZERO_PADDING_LENGTH 256
+
+#endif
+
 static void VX_CALLBACK log_callback(vx_context context, vx_reference ref, vx_status status, const vx_char string[])
 {
     size_t len = strlen(string);
@@ -36,6 +50,63 @@ void sort_indexes(const std::vector<T> &v, std::vector<size_t> &idx) {
   sort(idx.begin(), idx.end(),
        [&v](size_t i1, size_t i2) {return v[i1] > v[i2];});
 }
+
+#if defined(ENABLE_KUBERNETES_MODE)
+void loadMapOfFiles(const std::string& path, Arguments * args)
+{
+
+	//make sure only one thread is doing the loading
+	args->lock();
+
+	//if loaded exit
+	if (mapfiles_.size())
+	{
+		std::cout << "\nloadMapOfFiles LOCK LOCK\n";
+		args->unlock();
+		return;
+	}
+	
+	std::cout << "\nSTART loadMapOfFiles path=" << path << "\n";
+	//get list of files
+	DIR *dp;
+	struct dirent *ep;
+	char * byteStream = 0;
+
+	dp = opendir(path.c_str());
+	if (dp != NULL)
+	{
+		int index = 0;
+		while (ep = readdir(dp))
+		{
+			//iterate through files and load into memory map
+			std::string fn = path + ep->d_name;
+			//std::cout << "\n" << fn << "\n";
+			FILE * fp = fopen(fn.c_str(), "rb");
+			if (fp != NULL) {
+				fseek(fp, 0, SEEK_END);
+				int fsize = ftell(fp);
+				fseek(fp, 0, SEEK_SET);
+				if (fsize > 0)
+				{
+					//std::cout << "\n non zero \n";
+					byteStream = new char[fsize];
+					int size = (int)fread(byteStream, 1, fsize, fp);
+					fclose(fp);
+					//std::cout << "\n fsize " << size << "\n";
+					mapfiles_[fn] = byteStream;
+					mapfilesSizes_[fn] = size;
+					//std::cout << "\n mapfilesSizes_ fn=" << fn << " size=" << size << "\n";
+				}
+				index++;
+			}
+		}
+		(void)closedir(dp);
+	}
+	args->unlock();
+	std::cout << "\n END TOTAL " << mapfiles_.size() << "\n";
+}
+
+#endif
 
 InferenceEngine::InferenceEngine(int sock_, Arguments * args_, std::string clientName_, InfComCommand * cmd)
     : sock{ sock_ }, args{ args_ }, clientName{ clientName_ },
@@ -94,6 +165,11 @@ InferenceEngine::InferenceEngine(int sock_, Arguments * args_, std::string clien
         useShadowFilenames = true;
         std::cout << "INFO::inferenceserver is running with LocalShadowFolder and infcom command receiving only filenames" << std::endl;
     }
+
+#if defined(ENABLE_KUBERNETES_MODE)
+	std::string fileNameDir = args->getlocalShadowRootDir() + "/";
+	loadMapOfFiles(fileNameDir,args);
+#endif
 
     PROFILER_INITIALIZE();
 }
@@ -550,7 +626,14 @@ void InferenceEngine::DecodeScaleAndConvertToTensorBatch(std::vector<std::tuple<
         else
             buf = (float *) tens_buf + dim[0] * dim[1] * dim[2] * i;
         DecodeScaleAndConvertToTensor(dim[0], dim[1], size, (unsigned char *)byteStream, buf, useFp16);
+#if defined(ENABLE_KUBERNETES_MODE)	
+        if (!useShadowFilenames)
+        {
+           delete[] byteStream;
+        }
+#else
         delete[] byteStream;
+#endif
     }
 }
 
@@ -561,6 +644,16 @@ int InferenceEngine::run()
     /// make device lock is successful
     ///
     if(!deviceLockSuccess) {
+#if defined(ENABLE_KUBERNETES_MODE)	
+        InfComCommand gpu_lock_error = {
+            INFCOM_MAGIC, INFCOM_CMD_ERROR_GPU_LOCK, { 0 }, { 0 }
+        };
+
+        gpu_lock_error.data[0] = 100;
+        sprintf(gpu_lock_error.message, "Failed to lock GPU device");
+
+        ERRCHK(sendCommand(sock, gpu_lock_error, clientName));
+#endif
         return error_close(sock, "could not lock %d GPUs devices for inference request from %s", GPUs, clientName.c_str());
     }
 
@@ -1029,24 +1122,37 @@ int InferenceEngine::run()
                     char * byteStream = 0;
                     if (receiveFileNames)
                     {
-                        std::string fileNameDir = args->getlocalShadowRootDir() + "/";
-                        char * buff = new char [size];
-                        ERRCHK(recvBuffer(sock, buff, size, clientName));
-                        fileNameDir.append(std::string(buff, size));
-                        FILE * fp = fopen(fileNameDir.c_str(), "rb");
-                        if(!fp) {
-                            return error_close(sock, "filename %s (incorrect)", fileNameDir.c_str());
-                        }
-                        fseek(fp,0,SEEK_END);
-                        int fsize = ftell(fp);
-                        fseek(fp,0,SEEK_SET);
-                        byteStream = new char [fsize];
-                        size = (int)fread(byteStream, 1, fsize, fp);
-                        fclose(fp);
-                        delete[] buff;
-                        if (size != fsize) {
-                            return error_close(sock, "error reading %d bytes from file:%s", fsize, fileNameDir.c_str());
-                        }
+
+#if defined(ENABLE_KUBERNETES_MODE)	
+						char * buff = new char[size];
+						ERRCHK(recvBuffer(sock, buff, size, clientName));
+						std::string fileNameDir = args->getlocalShadowRootDir() + "/";
+						fileNameDir.append(std::string(buff, size - ZERO_PADDING_LENGTH));
+						delete[] buff;
+						//std::cout << "\nfileNameDir=" << fileNameDir << "----\n";
+						byteStream = mapfiles_[fileNameDir];
+						size = mapfilesSizes_[fileNameDir];
+						//std::cout << "\nfileNameDir size=" << size << "\n";
+#else
+						std::string fileNameDir = args->getlocalShadowRootDir() + "/";
+						char * buff = new char[size];
+						ERRCHK(recvBuffer(sock, buff, size, clientName));
+						fileNameDir.append(std::string(buff, size));
+						FILE * fp = fopen(fileNameDir.c_str(), "rb");
+						if (!fp) {
+							return error_close(sock, "filename %s (incorrect)", fileNameDir.c_str());
+						}
+						fseek(fp, 0, SEEK_END);
+						int fsize = ftell(fp);
+						fseek(fp, 0, SEEK_SET);
+						byteStream = new char[fsize];
+						size = (int)fread(byteStream, 1, fsize, fp);
+						fclose(fp);
+						delete[] buff;
+						if (size != fsize) {
+							return error_close(sock, "error reading %d bytes from file:%s", fsize, fileNameDir.c_str());
+						}
+#endif
                     }
                     else
                     {
@@ -1294,7 +1400,15 @@ void InferenceEngine::workDeviceInputCopy(int gpu)
                 DecodeScaleAndConvertToTensor(dimInput[0], dimInput[1], size, (unsigned char *)byteStream, buf, useFp16);
                 PROFILER_STOP(AnnInferenceServer, workDeviceInputCopyJpegDecode);
                 // release byteStream
-                delete[] byteStream;
+#if defined(ENABLE_KUBERNETES_MODE)	
+				if (!useShadowFilenames)
+				{
+					delete[] byteStream;
+				}
+#else
+				delete[] byteStream;
+#endif
+               
             }
         }
         // unlock the OpenCL buffer to perform the writing
