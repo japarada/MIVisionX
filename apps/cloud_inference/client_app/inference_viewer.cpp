@@ -251,6 +251,7 @@ void inference_viewer::terminate()
 			QThread::msleep(100);
 		}
 	}
+    state->performance.closePerformanceView();
     state->chart.closeChartView();
 	close();
 }
