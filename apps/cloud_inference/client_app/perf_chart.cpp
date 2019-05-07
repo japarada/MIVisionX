@@ -91,6 +91,10 @@ void perf_chart::changePods(double key)
     mCurMaxFPS = 0;
     ui->CustomPlot->addGraph();
     mCurGraph++;
+<<<<<<< HEAD
+=======
+    mCurGraph %= 4;
+>>>>>>> japarada/master
     coloredGraph();
 }
 
