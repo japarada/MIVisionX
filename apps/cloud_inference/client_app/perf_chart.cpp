@@ -91,7 +91,6 @@ void perf_chart::changePods(double key)
     mCurMaxFPS = 0;
     ui->CustomPlot->addGraph();
     mCurGraph++;
-    mCurGraph %= 4;
     coloredGraph();
 }
 
