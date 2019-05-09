@@ -53,6 +53,12 @@ void perf_chart::initGraph()
     // use checkbox to set colored graph
     connect(ui->coloredGraph, &QAbstractButton::clicked, this, &perf_chart::coloredGraph);
 
+    connect(ui->rb1, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
+    connect(ui->rb2, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
+    connect(ui->rb3, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
+    connect(ui->rb4, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
+    connect(ui->rb5, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
+
     // close button
     connect(ui->closeButton, &QAbstractButton::clicked, this, &perf_chart::closeChartView);
     timer.start(5);
@@ -63,35 +69,56 @@ void perf_chart::RealtimeDataSlot()
     static QTime time(QTime::currentTime());
     double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
     static double lastPointKey = 0;
-    if (key-lastPointKey > 0.01) // at most add point every 10 ms
-    {
+    if (key-lastPointKey > 0.01) { // at most add point every 10 ms
         ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
-        if (mFPSValue > mCurMaxFPS) {
-            mCurMaxFPS = mFPSValue;
+        if (mFPSValue > mMaxFPS) {
+            mMaxFPS = mFPSValue;
         }
         if (mLastPod != mNumPods) {
-            changePods(key);
+            static QTime temp(QTime::currentTime());
+            double tempKey = temp.elapsed()/1000.0;
+            static double tempLastPointKey = 0;
+            if (mTempPod == 0) {
+                mTempPod = mNumPods;
+            }
+            if (tempKey - tempLastPointKey > 3) {
+                if (mTempPod == mNumPods) {
+                    mTempPod = 0;
+                    mLastPod = mNumPods;
+                    changePods(key, mFPSValue);
+                }
+                else {
+                    mTempPod = mNumPods;
+                }
+                tempLastPointKey = tempKey;
+            }
         }
     }
     if (ui->movingGraph->isChecked()) {
         rescaleAxis(key);
     }
+    ui->CustomPlot->replot();
 }
 
-void perf_chart::changePods(double key)
+void perf_chart::changePods(double key, double value)
 {
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
     label->setText("Pod(s) = " % QString::number(mNumPods));
     label->setFont(QFont(font().family(), 10));
     label->setPen(QPen(Qt::black));
-    label->position->setCoords(key - mRangeX * 0.1, mCurMaxFPS + mRangeY * 0.1);
-    mLabels.push_back(label);
-    mLastPod = mNumPods;
-    mCurMaxFPS = 0;
+    label->position->setCoords(key - mRangeX * 0.05, value + mRangeY * 0.05);
+    mLabels.push_back(std::make_tuple(label, key, value));
     ui->CustomPlot->addGraph();
     mCurGraph++;
     coloredGraph();
+}
+
+void perf_chart::fixLabelLocation()
+{
+    for (unsigned int i=0; i<mLabels.size(); i++) {
+        std::get<0>(mLabels[i])->position->setCoords(std::get<1>(mLabels[i]) - mRangeX * 0.05, std::get<2>(mLabels[i]) + mRangeY * 0.05);
+    }
 }
 
 void perf_chart::coloredGraph()
@@ -99,13 +126,13 @@ void perf_chart::coloredGraph()
     if (ui->coloredGraph->isChecked()) {
         ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mCurGraph % 4]));
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            mLabels[i]->setPen(QPen(colors[(i+1) % 4]));
+            std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4]));
         }
     }
     else {
         ui->CustomPlot->graph()->setPen(QPen(Qt::blue));
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            mLabels[i]->setPen(QPen(Qt::black));
+            std::get<0>(mLabels[i])->setPen(QPen(Qt::black));
         }
     }
     ui->CustomPlot->replot();
@@ -130,8 +157,8 @@ void perf_chart::rescaleAxis(double key) {
         mRangeX = key+100;
     }
     mRangeY = mMaxFPS*1.5;
+    fixLabelLocation();
     ui->CustomPlot->yAxis->setRange(0, mRangeY);
-    ui->CustomPlot->replot();
 }
 
 void perf_chart::updateFPSValue(int fpsValue)
@@ -149,6 +176,7 @@ void perf_chart::setPods(int numPods)
 
 void perf_chart::closeChartView()
 {
-    this->close();
+    setPods(++mCount);
+    //this->close();
 }
 
