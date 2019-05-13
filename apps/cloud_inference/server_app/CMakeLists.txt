@@ -22,6 +22,8 @@
 cmake_minimum_required (VERSION 2.8)
 project (inference_server_app)
 
+add_definitions(-DENABLE_KUBERNETES_MODE)
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../../../amd_openvx/cmake)
 
 set (CMAKE_CXX_STANDARD 11)

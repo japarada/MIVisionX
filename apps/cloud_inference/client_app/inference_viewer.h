@@ -32,8 +32,13 @@ public:
     QVector<QString> inferenceResultSummary;
     QVector<QString> shadowFileBuffer;
     // receiver
+#if defined(ENABLE_KUBERNETES_MODE)
+    std::vector<QThread *> receiver_threads;
+    std::vector<inference_receiver *> receiver_workers;
+#else
     QThread * receiver_thread;
     inference_receiver * receiver_worker;
+#endif
     // rendering state
     float offsetSeconds;
     QVector<int> resultImageIndex;
@@ -108,6 +113,9 @@ public:
 
 public slots:
     void errorString(QString err);
+#if defined(ENABLE_KUBERNETES_MODE)
+	void manageReceiversPool();
+#endif
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -116,7 +124,11 @@ protected:
     void keyReleaseEvent(QKeyEvent *) override;
 
 private:
+#if defined(ENABLE_KUBERNETES_MODE)
+    void startReceivers();
+#else
     void startReceiver();
+#endif
     void saveResults();
     void showPerfResults();
     void showChartResults();
@@ -131,6 +143,9 @@ private:
     inference_state * state;
     QString fatalError;
     runtime_receiver_status progress;
+#if defined(ENABLE_KUBERNETES_MODE)
+	QTimer * receivers_timer;
+#endif
 };
 
 /* Model Info Structure */

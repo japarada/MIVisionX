@@ -41,13 +41,13 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="GPUs">
+      <widget class="QLabel" name="Pods">
        <property name="styleSheet">
         <string notr="true">color: rgb(0, 0, 0);
 font: 75 36pt &quot;Ubuntu&quot;;</string>
        </property>
        <property name="text">
-        <string>GPU(s) :</string>
+        <string>Pod(s) :</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -58,7 +58,7 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
       </widget>
      </item>
      <item>
-      <widget class="QLCDNumber" name="gpus_lcdNumber">
+      <widget class="QLCDNumber" name="pods_lcdNumber">
        <property name="styleSheet">
         <string notr="true">background-color: rgb(255, 255, 255);
 color: rgb(0, 0, 0);</string>
@@ -161,6 +161,13 @@ color: rgb(0, 0, 0);</string>
         <widget class="QCheckBox" name="movingGraph">
          <property name="text">
           <string>Moving Graph</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="coloredGraph">
+         <property name="text">
+          <string>Colored Graph</string>
          </property>
         </widget>
        </item>
