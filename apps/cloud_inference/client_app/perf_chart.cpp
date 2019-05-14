@@ -90,6 +90,7 @@ void perf_chart::RealtimeDataSlot()
     if (ui->movingGraph->isChecked()) {
         rescaleAxis(key);
     }
+    ui->CustomPlot->replot();
 }
 
 void perf_chart::changePods(double key, double value)
@@ -178,7 +179,6 @@ void perf_chart::setPods(int numPods)
 
 void perf_chart::closeChartView()
 {
-    setPods(++mTemPods);
     this->close();
 }
 
