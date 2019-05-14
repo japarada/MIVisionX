@@ -81,7 +81,7 @@ void perf_chart::RealtimeDataSlot()
             static QTime tempTime(QTime::currentTime());
             double tempKey = tempTime.elapsed()/1000.0; // time elapsed since start of demo, in seconds
             static double tempLastPointKey = 0;
-            if (tempKey - tempLastPointKey > 3) {
+            if (tempKey - tempLastPointKey > 4) {
                 changePods(key, mFPSValue);
                 tempLastPointKey = tempKey;
             }
@@ -109,14 +109,20 @@ void perf_chart::changePods(double key, double value)
 void perf_chart::coloredGraph()
 {
     if (ui->coloredGraph->isChecked()) {
-        ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mCurGraph % 4]));
+        for (int i=0; i<=mCurGraph; i++) {
+            ui->CustomPlot->graph(i)->setPen(QPen(colors[i % 4]));
+        }
         for (unsigned int i=0; i<mLabels.size(); i++) {
             std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4]));
         }
     }
     else {
-        for (unsigned int i=0; i<mLabels.size(); i++) {
+        for (int i=0; i<=mCurGraph; i++) {
             ui->CustomPlot->graph(i)->setPen(QPen(Qt::blue));
+
+        }
+        for (unsigned int i=0; i<mLabels.size(); i++) {
+
             std::get<0>(mLabels[i])->setPen(QPen(Qt::black));
         }
     }
@@ -173,6 +179,6 @@ void perf_chart::setPods(int numPods)
 void perf_chart::closeChartView()
 {
     setPods(++mTemPods);
-    //this->close();
+    this->close();
 }
 
