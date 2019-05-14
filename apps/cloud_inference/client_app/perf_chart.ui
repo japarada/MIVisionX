@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AMD Inference Graph</string>
+   <string>AMD MIVisionX Inference Graph</string>
   </property>
   <property name="autoFillBackground">
    <bool>true</bool>
@@ -70,7 +70,7 @@ color: rgb(0, 0, 0);</string>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>910</x>

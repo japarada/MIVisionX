@@ -18,7 +18,7 @@
 #include <sstream>
 #include <QElapsedTimer>
 
-#define WINDOW_TITLE             "MIVision Viewer"
+#define WINDOW_TITLE             "AMD MIVisionX Inference Viewer"
 #define ICON_SIZE                64
 #define ICON_STRIDE              (ICON_SIZE + 8)
 #define INFCOM_RUNTIME_OPTIONS   ""
@@ -282,6 +282,8 @@ void inference_viewer::terminate()
             QThread::msleep(100);
         }
     }
+    state->performance.closePerformanceView();
+    state->chart.closeChartView();
     close();
 }
 #endif
@@ -818,7 +820,6 @@ void inference_viewer::mouseReleaseEvent(QMouseEvent * event)
                 (y >= state->perfButtonRect.y()) &&
                 (y < (state->perfButtonRect.y() + state->perfButtonRect.height())))
         {
-            //TBD Function
             showPerfResults();
         }
         else if((x >= state->graphButtonRect.x()) &&
@@ -827,7 +828,6 @@ void inference_viewer::mouseReleaseEvent(QMouseEvent * event)
                 (y < (state->graphButtonRect.y() + state->graphButtonRect.height())))
         {
             showChartResults();
-            //TBD Function
         }
         state->exitButtonPressed = false;
         state->saveButtonPressed = false;
@@ -1496,7 +1496,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         else
             text.sprintf("classified as [label=%d] ", resultLabel);
         text += resultSummary;
-        painter.drawText(QRect(x + 4 + ICON_SIZE * 2 + 4, y + 4 + fontMetrics.height() + 8, w - 8, fontMetrics.height()), Qt::AlignLeft | Qt::AlignTop, text);       
+        painter.drawText(QRect(x + 4 + ICON_SIZE * 2 + 4, y + 4 + fontMetrics.height() + 8, w - 8, fontMetrics.height()), Qt::AlignLeft | Qt::AlignTop, text);
         if(truthLabel >= 0) {
             font.setItalic(true);
             setFont(font);
