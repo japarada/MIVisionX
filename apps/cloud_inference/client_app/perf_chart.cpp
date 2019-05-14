@@ -178,7 +178,6 @@ void perf_chart::setPods(int numPods)
 
 void perf_chart::closeChartView()
 {
-    setPods(++mTemPods);
     this->close();
 }
 
