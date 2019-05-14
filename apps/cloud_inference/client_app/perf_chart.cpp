@@ -56,6 +56,7 @@ void perf_chart::initGraph()
     connect(ui->rb3, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
     connect(ui->rb4, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
     connect(ui->rb5, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
+
     // use checkbox to set colored graph
     connect(ui->coloredGraph, &QAbstractButton::clicked, this, &perf_chart::coloredGraph);
 
@@ -73,11 +74,17 @@ void perf_chart::RealtimeDataSlot()
     {
         ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
-        if (mFPSValue > mCurMaxFPS) {
-            mCurMaxFPS = mFPSValue;
+        if (mFPSValue > mMaxFPS) {
+            mMaxFPS = mFPSValue;
         }
         if (mLastPod != mNumPods) {
-            changePods(key);
+            static QTime tempTime(QTime::currentTime());
+            double tempKey = tempTime.elapsed()/1000.0; // time elapsed since start of demo, in seconds
+            static double tempLastPointKey = 0;
+            if (tempKey - tempLastPointKey > 3) {
+                changePods(key, mFPSValue);
+                tempLastPointKey = tempKey;
+            }
         }
     }
     if (ui->movingGraph->isChecked()) {
@@ -85,16 +92,15 @@ void perf_chart::RealtimeDataSlot()
     }
 }
 
-void perf_chart::changePods(double key)
+void perf_chart::changePods(double key, double value)
 {
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
     label->setText("Pod(s) = " % QString::number(mNumPods));
     label->setFont(QFont(font().family(), 10));
     label->setPen(QPen(Qt::black));
-    label->position->setCoords(key - mRangeX * 0.1, mCurMaxFPS + mRangeY * 0.1);
-    mLabels.push_back(label);
+    label->position->setCoords(key - mRangeX * 0.05, value + mRangeY * 0.05);
+    mLabels.push_back(std::make_tuple(label, key, mFPSValue));
     mLastPod = mNumPods;
-    mCurMaxFPS = 0;
     ui->CustomPlot->addGraph();
     mCurGraph++;
     coloredGraph();
@@ -105,19 +111,20 @@ void perf_chart::coloredGraph()
     if (ui->coloredGraph->isChecked()) {
         ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mCurGraph % 4]));
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            mLabels[i]->setPen(QPen(colors[(i+1) % 4]));
+            std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4]));
         }
     }
     else {
-        ui->CustomPlot->graph()->setPen(QPen(Qt::blue));
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            mLabels[i]->setPen(QPen(Qt::black));
+            ui->CustomPlot->graph(i)->setPen(QPen(Qt::blue));
+            std::get<0>(mLabels[i])->setPen(QPen(Qt::black));
         }
     }
     ui->CustomPlot->replot();
 }
 
-void perf_chart::rescaleAxis(double key) {
+void perf_chart::rescaleAxis(double key)
+{
     ui->CustomPlot->graph()->rescaleValueAxis();
     if (ui->rb1->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+20, 60, Qt::AlignRight);
@@ -137,7 +144,17 @@ void perf_chart::rescaleAxis(double key) {
     }
     mRangeY = mMaxFPS*1.5;
     ui->CustomPlot->yAxis->setRange(0, mRangeY);
+    fixLabelLocation();
     ui->CustomPlot->replot();
+}
+
+void perf_chart::fixLabelLocation()
+{
+    for (unsigned int i=0; i<mLabels.size(); i++) {
+        double key = std::get<1>(mLabels[i]);
+        double value = std::get<2>(mLabels[i]);
+        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.05, value+mRangeY*0.05);
+    }
 }
 
 void perf_chart::updateFPSValue(int fpsValue)
@@ -155,6 +172,7 @@ void perf_chart::setPods(int numPods)
 
 void perf_chart::closeChartView()
 {
-    this->close();
+    setPods(++mTemPods);
+    //this->close();
 }
 

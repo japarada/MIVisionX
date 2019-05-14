@@ -25,14 +25,14 @@ private:
     Ui::perf_chart *ui;
     QTimer timer;
     int mMaxFPS = 0;
-    int mCurMaxFPS = 0;
     int mFPSValue;
+    int mTemPods = 0;
     int mNumPods;
     int mLastPod = 0;
     int mCurGraph = 0;
     double mRangeX;
     double mRangeY;
-    std::vector<QCPItemText *> mLabels;
+    std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
 
 public slots:
     void initGraph();
@@ -40,7 +40,8 @@ public slots:
     void updateFPSValue(int fpsValue);
     void setPods(int numPods);
     void rescaleAxis(double key);
-    void changePods(double key);
+    void fixLabelLocation();
+    void changePods(double key, double value);
     void closeChartView();
     void coloredGraph();
 };
