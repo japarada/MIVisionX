@@ -86,7 +86,7 @@ void inference_receiver::run()
     //    - when results are received add the results to imageIndex, imageLabel, imageSummary queues
 
     progress->images_sent = 0;
- 
+    progress->images_received = 0;
  #if defined(ENABLE_KUBERNETES_MODE)   
     //do not reset images received as other running threads might had received images already
 	//progress->images_received = 0;
@@ -108,9 +108,7 @@ void inference_receiver::run()
                 break;
             if(cmd.magic != INFCOM_MAGIC) {
                 progress->errorCode = -1;
- #if defined(ENABLE_KUBERNETES_MODE)
-             //   progress->message.sprintf("ERROR: got invalid magic 0x%08x", cmd.magic);
- #endif
+                progress->message.sprintf("ERROR: got invalid magic 0x%08x", cmd.magic);
                 break;
             }
             else if(cmd.command == INFCOM_CMD_DONE) {
@@ -137,11 +135,11 @@ void inference_receiver::run()
                 connection->sendCmd(reply);
             }
             else if(cmd.command == INFCOM_CMD_SEND_IMAGES) {
+                progress->message = "";
 #if defined(ENABLE_KUBERNETES_MODE)
 				state_ = SENDING;
 				//reset complete flag as other thread could have set it to complete
 				progress->completed = false;
-              //  progress->message = "";
 #endif
                 int count_requested = cmd.data[0];
                 int count = progress->completed_send ? -1 :
@@ -185,10 +183,10 @@ void inference_receiver::run()
                     else if(progress->completed_load && progress->images_loaded == progress->images_sent) {
                         progress->completed_send = true;
                     }
-                }head
+                }
             }
-            else headommand == INFCOM_CMD_INFERENCE_RESULT) {
-                cheadn->sendCmd(cmd);
+            else if(cmd.command == INFCOM_CMD_INFERENCE_RESULT) {
+                connection->sendCmd(cmd);
                 int count = cmd.data[0];
                 int status = cmd.data[1];
                 if(status == 0 && count > 0 && count < (int)((sizeof(cmd)-16)/(2*sizeof(int)))) {
@@ -258,9 +256,7 @@ void inference_receiver::run()
             }
             else {
                 progress->errorCode = -1;
-#if defined(ENABLE_KUBERNETES_MODE)	
-                //progress->message.sprintf("ERROR: got invalid command 0x%08x", cmd.command);
-#endif
+                progress->message.sprintf("ERROR: got invalid command 0x%08x", cmd.command);
                 break;
             }
         }
@@ -268,9 +264,7 @@ void inference_receiver::run()
     }
     else {
         progress->errorCode = -1;
-#if defined(ENABLE_KUBERNETES_MODE)	
-        //progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
-#endif
+        progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
     }
 
     if(abortRequsted)

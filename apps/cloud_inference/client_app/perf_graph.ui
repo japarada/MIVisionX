@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>AMD MIVisionX Inference Performance</string>
+   <string>Performance</string>
   </property>
   <property name="styleSheet">
    <string notr="true">
@@ -228,8 +228,8 @@ color: rgb(0, 0, 0);</string>
     <rect>
      <x>310</x>
      <y>200</y>
-     <width>151headwidth>
-     <height>81headheight>
+     <width>151</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -433,4 +433,3 @@ color: rgb(0, 0, 0);</string>
  </resources>
  <connections/>
 </ui>
-head
