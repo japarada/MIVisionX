@@ -86,10 +86,12 @@ void inference_receiver::run()
     //    - when results are received add the results to imageIndex, imageLabel, imageSummary queues
 
     progress->images_sent = 0;
-    progress->images_received = 0;
+
  #if defined(ENABLE_KUBERNETES_MODE)   
     //do not reset images received as other running threads might had received images already
 	//progress->images_received = 0;
+ #else
+     progress->images_received = 0;
  #endif
  
     progress->completed_send = false;
@@ -108,7 +110,9 @@ void inference_receiver::run()
                 break;
             if(cmd.magic != INFCOM_MAGIC) {
                 progress->errorCode = -1;
+ #if !defined(ENABLE_KUBERNETES_MODE)
                 progress->message.sprintf("ERROR: got invalid magic 0x%08x", cmd.magic);
+ #endif
                 break;
             }
             else if(cmd.command == INFCOM_CMD_DONE) {
@@ -135,11 +139,13 @@ void inference_receiver::run()
                 connection->sendCmd(reply);
             }
             else if(cmd.command == INFCOM_CMD_SEND_IMAGES) {
-                progress->message = "";
+
 #if defined(ENABLE_KUBERNETES_MODE)
 				state_ = SENDING;
 				//reset complete flag as other thread could have set it to complete
 				progress->completed = false;
+#else
+                progress->message = "";
 #endif
                 int count_requested = cmd.data[0];
                 int count = progress->completed_send ? -1 :
@@ -256,7 +262,9 @@ void inference_receiver::run()
             }
             else {
                 progress->errorCode = -1;
+#if !defined(ENABLE_KUBERNETES_MODE)	
                 progress->message.sprintf("ERROR: got invalid command 0x%08x", cmd.command);
+#endif
                 break;
             }
         }
@@ -264,7 +272,9 @@ void inference_receiver::run()
     }
     else {
         progress->errorCode = -1;
+#if !defined(ENABLE_KUBERNETES_MODE)	
         progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
+#endif
     }
 
     if(abortRequsted)
