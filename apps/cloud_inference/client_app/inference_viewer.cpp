@@ -305,6 +305,7 @@ void inference_viewer::showPerfResults()
 
 void inference_viewer::showChartResults()
 {
+    state->chart.setGPUs(state->GPUs);
     state->chart.show();
 }
 
@@ -1025,11 +1026,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             if(state->sendFileName){
                 // extract only the last folder and filename for shadow
                 QStringList fileNameList = fileName.split("/");
-#if defined(ENABLE_KUBERNETES_MODE)
-				QString subFileName = fileNameList.last();
-#else
-				QString subFileName = fileNameList.at(fileNameList.size() - 2) + "/" + fileNameList.last();
-#endif
+                QString subFileName = fileNameList.at(fileNameList.size() - 2) + "/" + fileNameList.last();
                 //printf("Inference viewer adding file %s to shadow array of size %d\n", subFileName.toStdString().c_str(), byteArray.size());
                 state->shadowFileBuffer.push_back(subFileName);
             }
@@ -1220,24 +1217,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance.updateElapsedTime(state->elapsedTime);
         state->performance.updateFPSValue(imagesPerSec);
         state->performance.updateTotalImagesValue(progress.images_received);
-
         state->chart.updateFPSValue(imagesPerSec);
-
-#if defined(ENABLE_KUBERNETES_MODE)
-		//update nunber of connections to inference serverw
-		int connections = 0;
-		for (int i = 0; i < state->receiver_workers.size(); i++)
-		{
-			inference_receiver* c = state->receiver_workers[i];
-			if (c && (c->state() == receiver_state::SENDING))
-			{
-				connections++;
-			}
-		}
-		state->performance.setPods(connections);
-        state->performance.setTotalGPU(state->GPUs*connections);
-        state->chart.setPods(connections);
-#endif
         if(imagesPerSec > 0) {
             QString text;
             text.sprintf("... %.1f images/sec", imagesPerSec);

@@ -4,8 +4,6 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QtWidgets>
-#include <vector>
-#include <qcustomplot.h>
 
 static const Qt::GlobalColor colors[4] = {Qt::blue, Qt::green, Qt::red, Qt::yellow};
 
@@ -26,23 +24,16 @@ private:
     QTimer timer;
     int mMaxFPS = 0;
     int mFPSValue;
-    int mTemPods = 0;
-    int mNumPods;
-    int mLastPod = 0;
-    int mCurGraph = 0;
+    int mNumGPUs;
     double mRangeX;
     double mRangeY;
-    std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
 
 public slots:
     void initGraph();
     void RealtimeDataSlot();
     void updateFPSValue(int fpsValue);
-    void setPods(int numPods);
+    void setGPUs(int numGPUs);
     void rescaleAxis(double key);
-    void fixLabelLocation();
-    void changePods(double key, double value);
     void closeChartView();
-    void coloredGraph();
 };
 #endif // PERF_CHART_H
