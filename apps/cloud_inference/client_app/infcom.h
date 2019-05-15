@@ -93,7 +93,11 @@ typedef struct {
     int magic;
     int command;
     int data[14];
+#if defined(ENABLE_KUBERNETES_MODE)
+	char message[64];
+#else
     char message[128];
+#endif
 } InfComCommand;
 
 #endif
