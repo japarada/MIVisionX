@@ -1235,7 +1235,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		}
 		state->performance.setPods(connections);
         state->performance.setTotalGPU(state->GPUs*connections);
-		state->chart.setGPUs(state->GPUs);
+		state->chart.setGPUs(state->GPUs*connections);
 #endif
         if(imagesPerSec > 0) {
             QString text;
