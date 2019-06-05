@@ -305,7 +305,9 @@ void inference_viewer::showPerfResults()
 
 void inference_viewer::showChartResults()
 {
+#if !defined(ENABLE_KUBERNETES_MODE)
     state->chart.setGPUs(state->GPUs);
+#endif
     state->chart.show();
 }
 
@@ -1235,6 +1237,8 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		}
 		state->performance.setPods(connections);
         state->performance.setTotalGPU(state->GPUs*connections);
+        state->chart.setPods(connections);
+#else
 		state->chart.setGPUs(state->GPUs*connections);
 #endif
         if(imagesPerSec > 0) {

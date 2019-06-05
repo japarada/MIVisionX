@@ -27,9 +27,6 @@ void perf_chart::initGraph()
     // set default time duration to rb1 value
     ui->rb1->setChecked(1);
 
-    // set default option to moving moving graph
-    ui->movingGraph->setChecked(1);
-
     // x axis
     ui->CustomPlot->xAxis->setTicker(timeTicker);
     ui->CustomPlot->xAxis->setTickLabelFont(QFont(QFont().family(), 12));
@@ -58,6 +55,17 @@ void perf_chart::initGraph()
     connect(ui->rb4, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
     connect(ui->rb5, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
 
+    // set default option to moving graph
+    ui->movingGraph->setChecked(1);
+
+#if defined(ENABLE_KUBERNETES_MODE)
+    // set default option to moving colored graph
+    ui->coloredGraph->setChecked(1);
+    // use checkbox to set colored graph
+    connect(ui->coloredGraph, &QAbstractButton::clicked, this, &perf_chart::coloredGraph);
+    coloredGraph();
+#endif
+
     // close button
     connect(ui->closeButton, &QAbstractButton::clicked, this, &perf_chart::closeChartView);
     timer.start(5);
@@ -68,12 +76,21 @@ void perf_chart::RealtimeDataSlot()
     static QTime time(QTime::currentTime());
     double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
     static double lastPointKey = 0;
-    if (key-lastPointKey > 0.01) { // at most add point every 10 ms
-        ui->CustomPlot->graph(0)->addData(key, mFPSValue);
+    if (key-lastPointKey > 0.01) // at most add point every 10 ms
+    {
+        ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
-        if (mFPSValue > mMaxFPS) {
-            mMaxFPS = mFPSValue;
+#if defined(ENABLE_KUBERNETES_MODE)
+        if (mLastPod != mNumPods) {
+            static QTime tempTime(QTime::currentTime());
+            double tempKey = tempTime.elapsed()/1000.0; // time elapsed since start of demo, in seconds
+            static double tempLastPointKey = 0;
+            if (tempKey - tempLastPointKey > 4) {
+                changePods(key, mFPSValue);
+                tempLastPointKey = tempKey;
+            }
         }
+#endif
     }
     if (ui->movingGraph->isChecked()) {
         rescaleAxis(key);
@@ -81,7 +98,45 @@ void perf_chart::RealtimeDataSlot()
     ui->CustomPlot->replot();
 }
 
-void perf_chart::rescaleAxis(double key) {
+#if defined(ENABLE_KUBERNETES_MODE)
+void perf_chart::changePods(double key, double value)
+{
+    QCPItemText *label = new QCPItemText(ui->CustomPlot);
+    label->setText("Pods=" % QString::number(mNumPods));
+    label->setFont(QFont(font().family(), 10));
+    label->setPen(QPen(Qt::black));
+    label->position->setCoords(key - mRangeX * 0.05, value + mRangeY * 0.05);
+    mLabels.push_back(std::make_tuple(label, key, value));
+    mLastPod = mNumPods;
+    ui->CustomPlot->addGraph();
+    mCurGraph++;
+    coloredGraph();
+}
+
+void perf_chart::coloredGraph()
+{
+    if (ui->coloredGraph->isChecked()) {
+        for (int i=0; i<=mCurGraph; i++) {
+            ui->CustomPlot->graph(i)->setPen(QPen(colors[i % 4], 4));
+        }
+        for (unsigned int i=0; i<mLabels.size(); i++) {
+            std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4], 2));
+        }
+    }
+    else {
+        for (int i=0; i<=mCurGraph; i++) {
+            ui->CustomPlot->graph(i)->setPen(QPen(Qt::gray, 4));
+        }
+        for (unsigned int i=0; i<mLabels.size(); i++) {
+            std::get<0>(mLabels[i])->setPen(QPen(Qt::black, 2));
+        }
+    }
+    ui->CustomPlot->replot();
+}
+#endif
+
+void perf_chart::rescaleAxis(double key)
+{
     ui->CustomPlot->graph()->rescaleValueAxis();
     if (ui->rb1->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+20, 60, Qt::AlignRight);
@@ -101,7 +156,21 @@ void perf_chart::rescaleAxis(double key) {
     }
     mRangeY = mMaxFPS*1.5;
     ui->CustomPlot->yAxis->setRange(0, mRangeY);
+#if defined(ENABLE_KUBERNETES_MODE)
+    fixLabelLocation();
+#endif
 }
+
+#if defined(ENABLE_KUBERNETES_MODE)
+void perf_chart::fixLabelLocation()
+{
+    for (unsigned int i=0; i<mLabels.size(); i++) {
+        double key = std::get<1>(mLabels[i]);
+        double value = std::get<2>(mLabels[i]);
+        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.05, value+mRangeY*0.05);
+    }
+}
+#endif
 
 void perf_chart::updateFPSValue(int fpsValue)
 {
@@ -110,11 +179,19 @@ void perf_chart::updateFPSValue(int fpsValue)
         mMaxFPS = mFPSValue;
 }
 
+#if defined(ENABLE_KUBERNETES_MODE)
+void perf_chart::setPods(int numPods)
+{
+    mNumPods = numPods;
+    ui->pods_lcdNumber->display(numPods);
+}
+#else
 void perf_chart::setGPUs(int numGPUs)
 {
     mNumGPUs = numGPUs;
     ui->gpus_lcdNumber->display(numGPUs);
 }
+#endif
 
 void perf_chart::closeChartView()
 {
