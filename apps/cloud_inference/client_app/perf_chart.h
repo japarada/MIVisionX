@@ -4,6 +4,12 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QtWidgets>
+#include <vector>
+#include <qcustomplot.h>
+
+#if defined(ENABLE_KUBERNETES_MODE)
+static const Qt::GlobalColor colors[4] = {Qt::darkCyan, Qt::darkMagenta, Qt::darkGreen, Qt::darkBlue};
+#endif
 
 namespace Ui {
 class perf_chart;
@@ -22,16 +28,30 @@ private:
     QTimer timer;
     int mMaxFPS = 0;
     int mFPSValue;
-    int mNumGPUs;
     double mRangeX;
     double mRangeY;
+#if defined(ENABLE_KUBERNETES_MODE)
+    int mNumPods;
+    int mLastPod = 0;
+    int mCurGraph = 0;
+    std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
+#else
+    int mNumGPUs;
+#endif
 
 public slots:
     void initGraph();
     void RealtimeDataSlot();
     void updateFPSValue(int fpsValue);
-    void setGPUs(int numGPUs);
     void rescaleAxis(double key);
     void closeChartView();
+#if defined(ENABLE_KUBERNETES_MODE)
+    void setPods(int numPods);
+    void fixLabelLocation();
+    void changePods(double key, double value);
+    void coloredGraph();
+#else
+    void setGPUs(int numGPUs);
+#endif
 };
 #endif // PERF_CHART_H
