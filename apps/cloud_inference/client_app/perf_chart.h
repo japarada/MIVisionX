@@ -34,6 +34,7 @@ private:
     int mNumPods;
     int mLastPod = 0;
     int mCurGraph = 0;
+    double mLastLabelY;
     std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
 #else
     int mNumGPUs;
