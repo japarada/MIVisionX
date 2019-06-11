@@ -107,6 +107,7 @@ void perf_chart::changePods(double key, double value)
     label->setPen(QPen(Qt::black));
     label->position->setCoords(key - mRangeX * 0.05, value + mRangeY * 0.05);
     mLabels.push_back(std::make_tuple(label, key, value));
+
     mLastPod = mNumPods;
     ui->CustomPlot->addGraph();
     mCurGraph++;
