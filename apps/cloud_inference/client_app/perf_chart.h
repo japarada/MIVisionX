@@ -8,7 +8,7 @@
 #include <qcustomplot.h>
 
 #if defined(ENABLE_KUBERNETES_MODE)
-static const Qt::GlobalColor colors[4] = {Qt::darkCyan, Qt::darkMagenta, Qt::darkGreen, Qt::darkBlue};
+static const Qt::GlobalColor colors[4] = {Qt::darkRed, Qt::darkBlue, Qt::darkYellow, Qt::darkGreen};
 #endif
 
 namespace Ui {
@@ -30,14 +30,15 @@ private:
     int mFPSValue;
     double mRangeX;
     double mRangeY;
+    int mNumGPUs;
 #if defined(ENABLE_KUBERNETES_MODE)
     int mNumPods;
+    int mTempPod = 0;
+    int mChangedCount = 0;
+    int mDummyPods = 0;
     int mLastPod = 0;
     int mCurGraph = 0;
-    double mLastLabelY;
     std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
-#else
-    int mNumGPUs;
 #endif
 
 public slots:
@@ -46,13 +47,12 @@ public slots:
     void updateFPSValue(int fpsValue);
     void rescaleAxis(double key);
     void closeChartView();
+    void setGPUs(int numGPUs);
 #if defined(ENABLE_KUBERNETES_MODE)
     void setPods(int numPods);
     void fixLabelLocation();
     void changePods(double key, double value);
     void coloredGraph();
-#else
-    void setGPUs(int numGPUs);
 #endif
 };
 #endif // PERF_CHART_H
