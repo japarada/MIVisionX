@@ -83,12 +83,11 @@ void perf_chart::RealtimeDataSlot()
     {
         ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
-<<<<<<< HEAD
 #if defined(ENABLE_KUBERNETES_MODE)
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 5) {
+                if (mChangedCount == 200) {
                     changePods(key, mFPSValue);
                 }
             }
@@ -96,11 +95,6 @@ void perf_chart::RealtimeDataSlot()
                 mChangedCount = 0;
                 mTempPod = mNumPods;
             }
-=======
-        if (mFPSValue > mMaxFPS) {
-            mMaxFPS = mFPSValue;
-            ui->maxfps_lcdNumber->display(mMaxFPS);
->>>>>>> upstream/master
         }
 #endif
     }
@@ -218,7 +212,6 @@ void perf_chart::updateFPSValue(int fpsValue)
     if (mFPSValue > mMaxFPS) {
         mMaxFPS = mFPSValue;
         ui->maxfps_lcdNumber->display(mMaxFPS);
-<<<<<<< HEAD
     }
 }
 
@@ -227,8 +220,6 @@ void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
     ui->pods_lcdNumber->display(numPods);
-=======
->>>>>>> upstream/master
 }
 #endif
 
@@ -240,7 +231,6 @@ void perf_chart::setGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-    setPods(++mDummyPods);
-    //this->close();
+    this->close();
 }
 
