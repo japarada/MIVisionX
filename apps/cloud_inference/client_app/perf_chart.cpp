@@ -87,7 +87,7 @@ void perf_chart::RealtimeDataSlot()
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 200) {
+                if (mChangedCount == 250) {
                     changePods(key, mFPSValue);
                 }
             }
