@@ -172,16 +172,16 @@ void perf_chart::fixLabelLocation()
 
 void perf_chart::rescaleAxis(double key)
 {
-    if (ui->backGround->isChecked()) {
-        ui->CustomPlot->axisRect()->setBackgroundScaled(true);
-        ui->CustomPlot->axisRect()->setBackgroundScaledMode(Qt::KeepAspectRatioByExpanding);
-        ui->CustomPlot->axisRect()->setBackground(QBrush(QPixmap("/home/hansel/Downloads/Vega-White.png")));
-        ui->CustomPlot->xAxis->grid()->setVisible(false);
-        ui->CustomPlot->yAxis->grid()->setVisible(false);
-    }
-    else {
-        ui->CustomPlot->axisRect()->setBackground(QBrush(Qt::white));
-    }
+//    if (ui->backGround->isChecked()) {
+//        ui->CustomPlot->axisRect()->setBackgroundScaled(true);
+//        ui->CustomPlot->axisRect()->setBackgroundScaledMode(Qt::KeepAspectRatioByExpanding);
+//        ui->CustomPlot->axisRect()->setBackground(QBrush(QPixmap("/home/hansel/Downloads/Vega-White.png")));
+//        ui->CustomPlot->xAxis->grid()->setVisible(false);
+//        ui->CustomPlot->yAxis->grid()->setVisible(false);
+//    }
+//    else {
+//        ui->CustomPlot->axisRect()->setBackground(QBrush(Qt::white));
+//    }
     ui->CustomPlot->graph()->rescaleValueAxis();
     if (ui->rb1->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+20, 60, Qt::AlignRight);
