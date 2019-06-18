@@ -20,7 +20,7 @@ perf_chart::~perf_chart()
 void perf_chart::initGraph()
 {
     ui->CustomPlot->addGraph();
-    ui->CustomPlot->graph(0)->setPen(QPen(Qt::darkCyan, 4));
+    ui->CustomPlot->graph(0)->setPen(QPen(Qt::darkBlue, 4));
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
@@ -83,6 +83,7 @@ void perf_chart::RealtimeDataSlot()
     {
         ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
+<<<<<<< HEAD
 #if defined(ENABLE_KUBERNETES_MODE)
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
@@ -95,6 +96,11 @@ void perf_chart::RealtimeDataSlot()
                 mChangedCount = 0;
                 mTempPod = mNumPods;
             }
+=======
+        if (mFPSValue > mMaxFPS) {
+            mMaxFPS = mFPSValue;
+            ui->maxfps_lcdNumber->display(mMaxFPS);
+>>>>>>> upstream/master
         }
 #endif
     }
@@ -212,6 +218,7 @@ void perf_chart::updateFPSValue(int fpsValue)
     if (mFPSValue > mMaxFPS) {
         mMaxFPS = mFPSValue;
         ui->maxfps_lcdNumber->display(mMaxFPS);
+<<<<<<< HEAD
     }
 }
 
@@ -220,6 +227,8 @@ void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
     ui->pods_lcdNumber->display(numPods);
+=======
+>>>>>>> upstream/master
 }
 #endif
 
