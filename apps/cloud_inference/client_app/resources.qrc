@@ -10,5 +10,9 @@
         <file>images/small_radeon_logo.png</file>
         <file>images/small_amd_logo.png</file>
         <file>images/rocm_logo.png</file>
+        <file>images/Radeon.png</file>
+        <file>images/MIVisionX.png</file>
+        <file>images/AMD-Radeon.png</file>
+        <file>images/AMD.png</file>
     </qresource>
 </RCC>

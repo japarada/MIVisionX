@@ -20,7 +20,7 @@ perf_chart::~perf_chart()
 void perf_chart::initGraph()
 {
     ui->CustomPlot->addGraph();
-    ui->CustomPlot->graph(0)->setPen(QPen(Qt::darkBlue, 4));
+    ui->CustomPlot->graph(0)->setPen(QPen(Qt::darkBlue, 6));
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
@@ -125,18 +125,18 @@ void perf_chart::coloredGraph()
 {
     if (ui->coloredGraph->isChecked()) {
         for (int i=0; i<=mCurGraph; i++) {
-            ui->CustomPlot->graph(i)->setPen(QPen(colors[i % 4], 4));
+            ui->CustomPlot->graph(i)->setPen(QPen(colors[i % 4], 6));
         }
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4], 2));
+            std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4], 3));
         }
     }
     else {
         for (int i=0; i<=mCurGraph; i++) {
-            ui->CustomPlot->graph(i)->setPen(QPen(Qt::gray, 4));
+            ui->CustomPlot->graph(i)->setPen(QPen(Qt::gray, 6));
         }
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            std::get<0>(mLabels[i])->setPen(QPen(Qt::black, 2));
+            std::get<0>(mLabels[i])->setPen(QPen(Qt::black, 3));
         }
     }
     ui->CustomPlot->replot();
@@ -173,16 +173,6 @@ void perf_chart::fixLabelLocation()
 
 void perf_chart::rescaleAxis(double key)
 {
-//    if (ui->backGround->isChecked()) {
-//        ui->CustomPlot->axisRect()->setBackgroundScaled(true);
-//        ui->CustomPlot->axisRect()->setBackgroundScaledMode(Qt::KeepAspectRatioByExpanding);
-//        ui->CustomPlot->axisRect()->setBackground(QBrush(QPixmap("/home/hansel/Downloads/Vega-White.png")));
-//        ui->CustomPlot->xAxis->grid()->setVisible(false);
-//        ui->CustomPlot->yAxis->grid()->setVisible(false);
-//    }
-//    else {
-//        ui->CustomPlot->axisRect()->setBackground(QBrush(Qt::white));
-//    }
     ui->CustomPlot->graph()->rescaleValueAxis();
     if (ui->rb1->isChecked()) {
         ui->CustomPlot->xAxis->setRange(key+20, 60, Qt::AlignRight);

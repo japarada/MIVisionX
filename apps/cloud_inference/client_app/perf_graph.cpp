@@ -7,8 +7,6 @@ perf_graph::perf_graph(QWidget *parent) :
 {
     ui->setupUi(this);
     maxFPS = 0;
-    connect(ui->close_pushButton, &QAbstractButton::clicked, this, &perf_graph::closePerformanceView);
-    connect(ui->reset_pushButton, &QAbstractButton::clicked, this, &perf_graph::resetPerformanceView);
 }
 
 perf_graph::~perf_graph()
