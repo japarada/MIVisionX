@@ -112,7 +112,7 @@ void perf_chart::changePods(double key, double value)
     label->setFont(QFont(font().family(), 10));
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
-    label->position->setCoords(key - mRangeX * 0.05, value + mRangeY * 0.12);
+    label->position->setCoords(key - mRangeX * 0.03, value + mRangeY * 0.12);
     mLabels.push_back(std::make_tuple(label, key, value));
 
     QCPItemLine *arrow = new QCPItemLine(ui->CustomPlot);
@@ -153,7 +153,7 @@ void perf_chart::fixLabelLocation()
     for (unsigned int i=0; i<mLabels.size(); i++) {
         double key = std::get<1>(mLabels[i]);
         double value = std::get<2>(mLabels[i]);
-        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.05, value+mRangeY*0.12);
+        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.03, value+mRangeY*0.12);
         curRect.setTopLeft(std::get<0>(mLabels[i])->topLeft->pixelPosition());
         curRect.setBottomRight(std::get<0>(mLabels[i])->bottomRight->pixelPosition());
         if (curRect.intersects(prevRect)) {
