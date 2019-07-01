@@ -172,7 +172,6 @@ void perf_chart::fixLabelLocation()
         prevRect = curRect;
     }
 }
-
 #endif
 
 void perf_chart::rescaleAxis(double key)
