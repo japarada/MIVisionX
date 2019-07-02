@@ -36,6 +36,7 @@ private:
     int mTempPod = 0;
     int mChangedCount = 0;
     int mLastPod = 0;
+    int mDummyPods = 0;
     int mCurGraph = 0;
     double mLastLabelY;
     std::vector<std::tuple<QCPItemText *, double, double>> mLabels;

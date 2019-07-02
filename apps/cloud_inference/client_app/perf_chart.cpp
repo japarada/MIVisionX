@@ -31,7 +31,7 @@ void perf_chart::initGraph()
     // x axis
     ui->CustomPlot->xAxis->setTicker(timeTicker);
     ui->CustomPlot->xAxis->setTickLabelFont(QFont(QFont().family(), 12));
-    ui->CustomPlot->xAxis->setLabel("Time Elapsed");
+    ui->CustomPlot->xAxis->setLabel("Time");
     ui->CustomPlot->xAxis->setLabelFont((QFont(QFont().family(), 20)));
     ui->CustomPlot->xAxis->grid()->setSubGridVisible(false);
 
@@ -87,7 +87,7 @@ void perf_chart::RealtimeDataSlot()
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 250) {
+                if (mChangedCount == 280) {
                     changePods(key, mFPSValue);
                 }
             }
@@ -109,10 +109,10 @@ void perf_chart::changePods(double key, double value)
 {
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
     label->setText("Pods=" % QString::number(mNumPods));
-    label->setFont(QFont(font().family(), 10));
+    label->setFont(QFont(font().family(), 14));
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
-    label->position->setCoords(key - mRangeX * 0.03, value + mRangeY * 0.12);
+    label->position->setCoords(key - mRangeX * 0.04, value + mRangeY * 0.12);
     mLabels.push_back(std::make_tuple(label, key, value));
 
     QCPItemLine *arrow = new QCPItemLine(ui->CustomPlot);
@@ -153,7 +153,7 @@ void perf_chart::fixLabelLocation()
     for (unsigned int i=0; i<mLabels.size(); i++) {
         double key = std::get<1>(mLabels[i]);
         double value = std::get<2>(mLabels[i]);
-        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.03, value+mRangeY*0.12);
+        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.04, value+mRangeY*0.12);
         curRect.setTopLeft(std::get<0>(mLabels[i])->topLeft->pixelPosition());
         curRect.setBottomRight(std::get<0>(mLabels[i])->bottomRight->pixelPosition());
         if (curRect.intersects(prevRect)) {
@@ -162,11 +162,15 @@ void perf_chart::fixLabelLocation()
                 newX = curRect.x() + curRect.width();
                 newY = prevRect.y() - curRect.height();
                 std::get<0>(mLabels[i])->position->setPixelPosition(QPointF(newX,newY));
+                curRect.setTopLeft(QPointF(newX, newY));
+                curRect.setBottomRight(QPointF(newX+curRect.width(), newY+curRect.height()));
             }
             else if (curRect.contains(std::get<0>(mLabels[i])->top->pixelPosition())) {
                 newX = curRect.x() + curRect.width();
                 newY = prevRect.y() + curRect.height();
                 std::get<0>(mLabels[i])->position->setPixelPosition(QPointF(newX,newY));
+                curRect.setTopLeft(QPointF(newX, newY));
+                curRect.setBottomRight(QPointF(newX+curRect.width(), newY+curRect.height()));
             }
         }
         prevRect = curRect;
@@ -190,7 +194,7 @@ void perf_chart::rescaleAxis(double key)
         ui->CustomPlot->xAxis->setRange(key+30, 480, Qt::AlignRight);
         mRangeX = 480;
     } else if (ui->rb5->isChecked()) {
-        ui->CustomPlot->xAxis->setRange(0, key+100);
+        ui->CustomPlot->xAxis->setRange(-10, key+100);
         mRangeX = key+100;
     }
     mRangeY = mMaxFPS*1.5;
@@ -225,6 +229,7 @@ void perf_chart::setGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-    this->close();
+    setPods(++mDummyPods);
+    //this->close();
 }
 
