@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1232</width>
-    <height>835</height>
+    <height>877</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -437,6 +437,13 @@ color: rgb(0, 0, 0);</string>
            <widget class="QCheckBox" name="movingGraph">
             <property name="text">
              <string>Moving Graph</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="barChart">
+            <property name="text">
+             <string>Bar Chart</string>
             </property>
            </widget>
           </item>

@@ -14,6 +14,7 @@ perf_chart::perf_chart(QWidget *parent) :
 
 perf_chart::~perf_chart()
 {
+    delete bar;
     delete ui;
 }
 
@@ -66,6 +67,9 @@ void perf_chart::initGraph()
     ui->coloredGraph->setChecked(1);
     // use checkbox to set colored graph
     connect(ui->coloredGraph, &QAbstractButton::clicked, this, &perf_chart::coloredGraph);
+    bar = new perf_bar(this);
+    bar->setPosition(perf_chart::x()+perf_chart::width(), perf_chart::y()+perf_chart::height());
+    connect(ui->barChart, &QAbstractButton::clicked, this, &perf_chart::barChart);
     coloredGraph();
 #endif
 
@@ -79,7 +83,7 @@ void perf_chart::RealtimeDataSlot()
     static QTime time(QTime::currentTime());
     double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
     static double lastPointKey = 0;
-    if (key-lastPointKey > 0.01) // at most add point every 10 ms
+    if (key-lastPointKey > 0.005) // at most add point every 5 ms
     {
         ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
@@ -109,7 +113,7 @@ void perf_chart::changePods(double key, double value)
 {
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
     label->setText("Pods=" % QString::number(mNumPods));
-    label->setFont(QFont(font().family(), 14));
+    label->setFont(QFont(font().family(), 12));
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
     label->position->setCoords(key - mRangeX * 0.04, value + mRangeY * 0.12);
@@ -121,6 +125,8 @@ void perf_chart::changePods(double key, double value)
 
     mLastPod = mNumPods;
     ui->CustomPlot->addGraph();
+    bar->addBar(mNumPods);
+    mCurMax = 0;
     mCurGraph++;
     coloredGraph();
 }
@@ -211,6 +217,8 @@ void perf_chart::updateFPSValue(int fpsValue)
         mMaxFPS = mFPSValue;
         ui->maxfps_lcdNumber->display(mMaxFPS);
     }
+    if (mNumPods != 0)
+        bar->setFPS(fpsValue);
 }
 
 #if defined(ENABLE_KUBERNETES_MODE)
@@ -218,6 +226,16 @@ void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
     ui->pods_lcdNumber->display(numPods);
+}
+
+void perf_chart::barChart()
+{
+    if (ui->barChart->isChecked()) {
+        bar->show();
+    }
+    else {
+        bar->closeBarView();
+    }
 }
 #endif
 
@@ -229,7 +247,7 @@ void perf_chart::setGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-    setPods(++mDummyPods);
-    //this->close();
+    bar->closeBarView();
+    this->close();
 }
 
