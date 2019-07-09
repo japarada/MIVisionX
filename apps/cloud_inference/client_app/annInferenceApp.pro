@@ -34,6 +34,7 @@ SOURCES += \
         inference_control.cpp \
         inference_compiler.cpp \
         assets.cpp \
+        perf_bar.cpp \
         tcpconnection.cpp \
         inference_panel.cpp \
         perf_graph.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
         inference_compiler.h \
         infcom.h \
         assets.h \
+        perf_bar.h \
         tcpconnection.h \
         inference_panel.h \
         perf_graph.h \
@@ -56,6 +58,7 @@ HEADERS += \
 FORMS += \
         inference_viewer.ui \
         inference_panel.ui \
+        perf_bar.ui \
         perf_graph.ui \
         perf_chart.ui
 

@@ -6,9 +6,8 @@
 #include <QtWidgets>
 #include <vector>
 #include <qcustomplot.h>
-
 #if defined(ENABLE_KUBERNETES_MODE)
-static const Qt::GlobalColor colors[4] = {Qt::darkRed, Qt::darkBlue, Qt::darkYellow, Qt::darkGreen};
+#include "perf_bar.h"
 #endif
 
 namespace Ui {
@@ -37,8 +36,10 @@ private:
     int mChangedCount = 0;
     int mLastPod = 0;
     int mCurGraph = 0;
+    int mCurMax = 0;
     double mLastLabelY;
     std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
+    perf_bar *bar;
 #endif
 
 public slots:
@@ -53,6 +54,7 @@ public slots:
     void fixLabelLocation();
     void changePods(double key, double value);
     void coloredGraph();
+    void barChart();
 #endif
 };
 #endif // PERF_CHART_H

@@ -14,6 +14,7 @@ perf_chart::perf_chart(QWidget *parent) :
 
 perf_chart::~perf_chart()
 {
+    delete bar;
     delete ui;
 }
 
@@ -31,7 +32,7 @@ void perf_chart::initGraph()
     // x axis
     ui->CustomPlot->xAxis->setTicker(timeTicker);
     ui->CustomPlot->xAxis->setTickLabelFont(QFont(QFont().family(), 12));
-    ui->CustomPlot->xAxis->setLabel("Time Elapsed");
+    ui->CustomPlot->xAxis->setLabel("Time");
     ui->CustomPlot->xAxis->setLabelFont((QFont(QFont().family(), 20)));
     ui->CustomPlot->xAxis->grid()->setSubGridVisible(false);
 
@@ -66,6 +67,9 @@ void perf_chart::initGraph()
     ui->coloredGraph->setChecked(1);
     // use checkbox to set colored graph
     connect(ui->coloredGraph, &QAbstractButton::clicked, this, &perf_chart::coloredGraph);
+    bar = new perf_bar(this);
+    bar->setPosition(perf_chart::x()+perf_chart::width(), perf_chart::y()+perf_chart::height());
+    connect(ui->barChart, &QAbstractButton::clicked, this, &perf_chart::barChart);
     coloredGraph();
 #endif
 
@@ -79,7 +83,7 @@ void perf_chart::RealtimeDataSlot()
     static QTime time(QTime::currentTime());
     double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
     static double lastPointKey = 0;
-    if (key-lastPointKey > 0.01) // at most add point every 10 ms
+    if (key-lastPointKey > 0.005) // at most add point every 5 ms
     {
         ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
         lastPointKey = key;
@@ -87,7 +91,7 @@ void perf_chart::RealtimeDataSlot()
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 250) {
+                if (mChangedCount == 280) {
                     changePods(key, mFPSValue);
                 }
             }
@@ -109,10 +113,10 @@ void perf_chart::changePods(double key, double value)
 {
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
     label->setText("Pods=" % QString::number(mNumPods));
-    label->setFont(QFont(font().family(), 10));
+    label->setFont(QFont(font().family(), 12));
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
-    label->position->setCoords(key - mRangeX * 0.03, value + mRangeY * 0.12);
+    label->position->setCoords(key - mRangeX * 0.04, value + mRangeY * 0.12);
     mLabels.push_back(std::make_tuple(label, key, value));
 
     QCPItemLine *arrow = new QCPItemLine(ui->CustomPlot);
@@ -121,6 +125,8 @@ void perf_chart::changePods(double key, double value)
 
     mLastPod = mNumPods;
     ui->CustomPlot->addGraph();
+    bar->addBar(mNumPods);
+    mCurMax = 0;
     mCurGraph++;
     coloredGraph();
 }
@@ -153,7 +159,7 @@ void perf_chart::fixLabelLocation()
     for (unsigned int i=0; i<mLabels.size(); i++) {
         double key = std::get<1>(mLabels[i]);
         double value = std::get<2>(mLabels[i]);
-        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.03, value+mRangeY*0.12);
+        std::get<0>(mLabels[i])->position->setCoords(key-mRangeX*0.04, value+mRangeY*0.12);
         curRect.setTopLeft(std::get<0>(mLabels[i])->topLeft->pixelPosition());
         curRect.setBottomRight(std::get<0>(mLabels[i])->bottomRight->pixelPosition());
         if (curRect.intersects(prevRect)) {
@@ -162,11 +168,15 @@ void perf_chart::fixLabelLocation()
                 newX = curRect.x() + curRect.width();
                 newY = prevRect.y() - curRect.height();
                 std::get<0>(mLabels[i])->position->setPixelPosition(QPointF(newX,newY));
+                curRect.setTopLeft(QPointF(newX, newY));
+                curRect.setBottomRight(QPointF(newX+curRect.width(), newY+curRect.height()));
             }
             else if (curRect.contains(std::get<0>(mLabels[i])->top->pixelPosition())) {
                 newX = curRect.x() + curRect.width();
                 newY = prevRect.y() + curRect.height();
                 std::get<0>(mLabels[i])->position->setPixelPosition(QPointF(newX,newY));
+                curRect.setTopLeft(QPointF(newX, newY));
+                curRect.setBottomRight(QPointF(newX+curRect.width(), newY+curRect.height()));
             }
         }
         prevRect = curRect;
@@ -190,7 +200,7 @@ void perf_chart::rescaleAxis(double key)
         ui->CustomPlot->xAxis->setRange(key+30, 480, Qt::AlignRight);
         mRangeX = 480;
     } else if (ui->rb5->isChecked()) {
-        ui->CustomPlot->xAxis->setRange(0, key+100);
+        ui->CustomPlot->xAxis->setRange(-10, key+100);
         mRangeX = key+100;
     }
     mRangeY = mMaxFPS*1.5;
@@ -207,6 +217,8 @@ void perf_chart::updateFPSValue(int fpsValue)
         mMaxFPS = mFPSValue;
         ui->maxfps_lcdNumber->display(mMaxFPS);
     }
+    if (mNumPods != 0)
+        bar->setFPS(fpsValue);
 }
 
 #if defined(ENABLE_KUBERNETES_MODE)
@@ -214,6 +226,16 @@ void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
     ui->pods_lcdNumber->display(numPods);
+}
+
+void perf_chart::barChart()
+{
+    if (ui->barChart->isChecked()) {
+        bar->show();
+    }
+    else {
+        bar->closeBarView();
+    }
 }
 #endif
 
@@ -225,6 +247,7 @@ void perf_chart::setGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
+    bar->closeBarView();
     this->close();
 }
 
