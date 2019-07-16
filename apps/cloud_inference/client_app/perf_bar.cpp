@@ -57,13 +57,18 @@ void perf_bar::changeBar()
     mCurBar->data()->clear();
     mCurBar->addData(mCurBarTick, mCurMax);
     ui->CustomBar->xAxis->setRange(0, mCurBarTick+1);
-    ui->CustomBar->yAxis->setRange(0, mMaxFPS*1.5);
     ui->CustomBar->replot();
 }
 
 void perf_bar::setPosition(double x, double y)
 {
     perf_bar::move(x, y);
+}
+
+void perf_bar::setMax(int max)
+{
+    ui->CustomBar->yAxis->setRange(0, max);
+    ui->CustomBar->replot();
 }
 
 void perf_bar::setPods(int numPods)

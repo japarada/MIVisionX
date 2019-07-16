@@ -220,8 +220,14 @@ void perf_chart::rescaleAxis(double key)
         ui->CustomPlot->xAxis->setRange(-10, key+100);
         mRangeX = key+100;
     }
-    mRangeY = mMaxFPS*1.5;
-    ui->CustomPlot->yAxis->setRange(0, mRangeY);
+    if (ui->setMax->isChecked()) {
+        ui->CustomPlot->yAxis->setRange(0, 10000);
+        bar->setMax(10000);
+    } else {
+        mRangeY = mMaxFPS*1.5;
+        bar->setMax(mRangeY);
+        ui->CustomPlot->yAxis->setRange(0, mRangeY);
+    }
 #if defined(ENABLE_KUBERNETES_MODE)
     fixLabelLocation();
 #endif

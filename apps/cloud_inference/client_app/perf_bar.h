@@ -26,6 +26,7 @@ public slots:
     void setFPS(int);
     void changeBar();
     void setPosition(double, double);
+    void setMax(int);
     void setPods(int);
     void setGPUs(int);
     void setTotalGPUs(int);
