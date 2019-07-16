@@ -59,7 +59,7 @@ public slots:
     void changePods(double key, double value);
     void coloredGraph();
     void barChart();
-    void drawLineGraph(int value);
+    //void drawLineGraph(int value);
 #endif
 };
 #endif // PERF_CHART_H
