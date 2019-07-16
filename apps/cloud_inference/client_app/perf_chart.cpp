@@ -18,10 +18,23 @@ perf_chart::~perf_chart()
     delete ui;
 }
 
+void perf_chart::setCPUName(QString cpuName)
+{
+   ui->cpuName_label->setText(cpuName);
+}
+
+void perf_chart::setGPUName(QString gpuName)
+{
+   ui->gpuName_label->setText(gpuName);
+}
+
 void perf_chart::initGraph()
 {
     ui->CustomPlot->addGraph();
-    ui->CustomPlot->graph(0)->setPen(QPen(Qt::darkBlue, 6));
+    ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[0], 6));
+    QCPItemText *label = new QCPItemText(ui->CustomPlot);
+    label->setVisible(false);
+    mLabels.push_back(std::make_tuple(label, 0, 0, 0));
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
@@ -65,12 +78,13 @@ void perf_chart::initGraph()
 #if defined(ENABLE_KUBERNETES_MODE)
     // set default option to moving colored graph
     ui->coloredGraph->setChecked(1);
+
     // use checkbox to set colored graph
     connect(ui->coloredGraph, &QAbstractButton::clicked, this, &perf_chart::coloredGraph);
+
     bar = new perf_bar(this);
     bar->setPosition(perf_chart::x()+perf_chart::width(), perf_chart::y()+perf_chart::height());
     connect(ui->barChart, &QAbstractButton::clicked, this, &perf_chart::barChart);
-    coloredGraph();
 #endif
 
     // close button
@@ -117,7 +131,7 @@ void perf_chart::changePods(double key, double value)
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
     label->position->setCoords(key - mRangeX * 0.04, value + mRangeY * 0.12);
-    mLabels.push_back(std::make_tuple(label, key, value));
+    mLabels.push_back(std::make_tuple(label, key, value, mNumPods));
 
     QCPItemLine *arrow = new QCPItemLine(ui->CustomPlot);
     arrow->start->setParentAnchor(label->bottom);
@@ -125,6 +139,7 @@ void perf_chart::changePods(double key, double value)
 
     mLastPod = mNumPods;
     ui->CustomPlot->addGraph();
+    ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mLastPod%14], 6));
     bar->addBar(mNumPods);
     mCurMax = 0;
     mCurGraph++;
@@ -135,10 +150,12 @@ void perf_chart::coloredGraph()
 {
     if (ui->coloredGraph->isChecked()) {
         for (int i=0; i<=mCurGraph; i++) {
-            ui->CustomPlot->graph(i)->setPen(QPen(colors[i % 4], 6));
+            int numPod = std::get<3>(mLabels[i]);
+            ui->CustomPlot->graph(i)->setPen(QPen(colors[numPod%14], 6));
         }
         for (unsigned int i=0; i<mLabels.size(); i++) {
-            std::get<0>(mLabels[i])->setPen(QPen(colors[(i+1) % 4], 3));
+            int numPod = std::get<3>(mLabels[i]);
+            std::get<0>(mLabels[i])->setPen(QPen(colors[numPod%14], 3));
         }
     }
     else {
@@ -226,6 +243,7 @@ void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
     ui->pods_lcdNumber->display(numPods);
+    bar->setPods(numPods);
 }
 
 void perf_chart::barChart()
@@ -241,8 +259,14 @@ void perf_chart::barChart()
 
 void perf_chart::setGPUs(int numGPUs)
 {
+    bar->setGPUs(numGPUs);
+}
+
+void perf_chart::setTotalGPUs(int numGPUs)
+{
     mNumGPUs = numGPUs;
     ui->gpus_lcdNumber->display(numGPUs);
+    bar->setTotalGPUs(numGPUs);
 }
 
 void perf_chart::closeChartView()

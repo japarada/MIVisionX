@@ -80,7 +80,7 @@ inference_state::inference_state()
     graphButtonPressed = false;
 }
 
-inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName,
+inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName, QString cpuName, QString gpuName,
         QVector<QString> * dataLabels, QVector<QString> * dataHierarchy, QString dataFilename, QString dataFolder,
         int dimInput[3], int GPUs, int dimOutput[3], int maxImageDataSize,
         bool repeat_images, bool sendScaledImages, int sendFileName_, int topKValue,
@@ -109,6 +109,8 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     state->serverHost = serverHost;
     state->serverPort = serverPort;
     state->modelName = modelName;
+    state->cpuName = cpuName;
+    state->gpuName = gpuName;
     state->sendScaledImages = sendScaledImages;
     state->sendFileName = sendFileName_;
     state->topKValue = topKValue;
@@ -308,6 +310,8 @@ void inference_viewer::showChartResults()
 #if !defined(ENABLE_KUBERNETES_MODE)
     state->chart.setGPUs(state->GPUs);
 #endif
+    state->chart.setCPUName(state->cpuName);
+    state->chart.setGPUName(state->gpuName);
     state->chart.show();
 }
 
@@ -1237,8 +1241,9 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		}
 		state->performance.setPods(connections);
         state->performance.setTotalGPU(state->GPUs*connections);
-        state->chart.setGPUs(state->GPUs*connections);
+        state->chart.setTotalGPUs(state->GPUs*connections);
         state->chart.setPods(connections);
+        state->chart.setGPUs(state->GPUs);
 #else
 		state->chart.setGPUs(state->GPUs*connections);
 #endif

@@ -298,6 +298,22 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     controlLayout->addWidget(comboTopKResult, row, 1, 1, 1);
     connect(checkTopKResult, SIGNAL(clicked(bool)), this, SLOT(topKResultsEnable(bool)));
     row++;
+    QLabel * labelGPUName = new QLabel("Server GPU:");
+    labelGPUName->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
+    labelGPUName->setAlignment(Qt::AlignLeft);
+    controlLayout->addWidget(labelGPUName, row, 0, 1, 1);
+    comboGPUName = new QComboBox();
+    comboGPUName->addItems({ "Radeon Instinct", "Radeon Instinct MI25", "Radeon Instinct MI60", "Radeon GPU"});
+    controlLayout->addWidget(comboGPUName, row, 1, 1, 1);
+    row++;
+    QLabel * labelCPUName = new QLabel("Server CPU:");
+    labelCPUName->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
+    labelCPUName->setAlignment(Qt::AlignLeft);
+    controlLayout->addWidget(labelCPUName, row, 0, 1, 1);
+    comboCPUName = new QComboBox();
+    comboCPUName->addItems({ "Authentic AMD", "AMD EPYC \"NAPLES\"", "AMD EPYC \"ROME\"", "AMD Ryzen 7", "AMD Ryzen 5", "AMX Ryzen 9", "Intel Xeon Gold"});
+    controlLayout->addWidget(comboCPUName, row, 1, 1, 1);
+    row++;
     QLabel * labelGPUs = new QLabel("GPUs:");
     editGPUs = new QLineEdit("1");
     labelMaxGPUs = new QLabel("");
@@ -1021,6 +1037,9 @@ void inference_control::runInference()
 
     // start viewer
     QString modelName = comboModelSelect->currentText();
+    QString cpuName = comboCPUName->currentText();
+    QString gpuName = comboGPUName->currentText();
+
     if(comboModelSelect->currentIndex() < numModelTypes) {
         modelName = compiler_status.message;
     }
@@ -1048,7 +1067,7 @@ void inference_control::runInference()
     //display_panel->show();
 
     inference_viewer * viewer = new inference_viewer(
-                editServerHost->text(), editServerPort->text().toInt(), modelName,
+                editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName,
                 dataLabels, dataHierarchy, editImageListFile->text(), editImageFolder->text(),
                 dimInput, editGPUs->text().toInt(), dimOutput, maxDataSize, repeat_images, sendScaledImages, sendFileName, topKValue);
     viewer->setWindowIcon(QIcon(":/images/vega_icon_150.png"));
