@@ -32,6 +32,7 @@ private:
     int mNumGPUs;
 #if defined(ENABLE_KUBERNETES_MODE)
     int mNumPods = 0;
+    int mDummyPods = 0;
     int mTempPod = 0;
     int mChangedCount = 0;
     int mLastPod = 0;
@@ -58,6 +59,7 @@ public slots:
     void changePods(double key, double value);
     void coloredGraph();
     void barChart();
+    void drawLineGraph(int value);
 #endif
 };
 #endif // PERF_CHART_H

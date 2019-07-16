@@ -99,14 +99,15 @@ void perf_chart::RealtimeDataSlot()
     static double lastPointKey = 0;
     if (key-lastPointKey > 0.005) // at most add point every 5 ms
     {
-        ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue);
+        mNumPods = (mNumPods > 0) ? mNumPods : 1;
+        ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue/mNumPods);
         lastPointKey = key;
 #if defined(ENABLE_KUBERNETES_MODE)
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
                 if (mChangedCount == 280) {
-                    changePods(key, mFPSValue);
+                    changePods(key, mFPSValue/mNumPods);
                 }
             }
             else {
@@ -240,9 +241,19 @@ void perf_chart::updateFPSValue(int fpsValue)
         mMaxFPS = mFPSValue;
         ui->maxfps_lcdNumber->display(mMaxFPS);
     }
-    if (mNumPods != 0)
+    if (mNumPods != 0) {
         bar->setFPS(fpsValue);
+    }
+//    if (mNumPods == 1) {
+//        drawLineGraph(mMaxFPS);
+//    }
 }
+
+//void perf_chart::drawLineGraph(int value) {
+//    ui->CustomPlot->addGraph();
+//    ui->CustomPlot->graph()->setLineStyle(QCPGraph::lsImpulse);
+
+//}
 
 #if defined(ENABLE_KUBERNETES_MODE)
 void perf_chart::setPods(int numPods)
@@ -277,6 +288,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
+    //setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }
