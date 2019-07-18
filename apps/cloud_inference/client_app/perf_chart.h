@@ -26,28 +26,35 @@ private:
     Ui::perf_chart *ui;
     QTimer timer;
     int mMaxFPS = 0;
-    int mFPSValue;
+    int mFPSValue = 0;
     double mRangeX;
     double mRangeY;
     int mNumGPUs;
 #if defined(ENABLE_KUBERNETES_MODE)
-    int mNumPods;
+    int mMode;
+    int mNumPods = 0;
     int mTempPod = 0;
+    int mDummyPods = 0;
     int mChangedCount = 0;
     int mLastPod = 0;
     int mCurGraph = 0;
     int mCurMax = 0;
-    double mLastLabelY;
-    std::vector<std::tuple<QCPItemText *, double, double>> mLabels;
+    std::vector<std::tuple<QCPItemText *, double, double, int>> mLabels;
     perf_bar *bar;
+    QCPItemLine *mCurLine;
 #endif
 
 public slots:
     void initGraph();
+    void setCPUName(QString cpuName);
+    void setGPUName(QString gpuName);
+    void setMode(int mode);
     void RealtimeDataSlot();
+    void RealtimeDataSlotPerPod();
     void updateFPSValue(int fpsValue);
     void rescaleAxis(double key);
     void closeChartView();
+    void setTotalGPUs(int numGPUs);
     void setGPUs(int numGPUs);
 #if defined(ENABLE_KUBERNETES_MODE)
     void setPods(int numPods);

@@ -4,7 +4,8 @@
 #include <QDialog>
 #include <qcustomplot.h>
 
-static const Qt::GlobalColor colors[4] = {Qt::darkRed, Qt::darkBlue, Qt::darkYellow, Qt::darkGreen};
+static const Qt::GlobalColor colors[15] = {Qt::darkRed, Qt::darkBlue, Qt::darkYellow, Qt::darkGreen, Qt::darkMagenta, Qt::darkCyan, Qt::darkGray,
+                                          Qt::red, Qt::blue, Qt::green, Qt::yellow, Qt::magenta, Qt::cyan, Qt::black, Qt::gray};
 
 namespace Ui {
 class perf_bar;
@@ -24,7 +25,11 @@ public slots:
     void addBar(int);
     void setFPS(int);
     void changeBar();
-    void setPosition(double x, double y);
+    void setPosition(double, double);
+    void setMax(int);
+    void setPods(int);
+    void setGPUs(int);
+    void setTotalGPUs(int);
 
 private:
     Ui::perf_bar *ui;

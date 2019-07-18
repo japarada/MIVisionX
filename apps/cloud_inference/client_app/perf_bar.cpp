@@ -17,22 +17,24 @@ perf_bar::~perf_bar()
 
 void perf_bar::initGraph()
 {
-    ui->CustomBar->plotLayout()->insertRow(0);
-    QCPTextElement *title = new QCPTextElement(ui->CustomBar, "Max FPS per pods", QFont("sans", 15, QFont::Bold));
-    ui->CustomBar->plotLayout()->addElement(0, 0, title);
+    //ui->CustomBar->plotLayout()->insertRow(0);
+    //QCPTextElement *title = new QCPTextElement(ui->CustomBar, "Max FPS per pods", QFont("sans", 15, QFont::Bold));
+    //ui->CustomBar->plotLayout()->addElement(0, 0, title);
 
     QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
     ui->CustomBar->xAxis->setTicker(textTicker);
     ui->CustomBar->xAxis->setLabel("Pod(s)");
-    ui->CustomBar->yAxis->setLabel("FPS");
+    ui->CustomBar->xAxis->setLabelFont((QFont(QFont().family(), 15)));
+    ui->CustomBar->yAxis->setLabel("Max FPS");
+    ui->CustomBar->yAxis->setLabelFont((QFont(QFont().family(), 15)));
 }
 
 void perf_bar::addBar(int numPod)
 {
     QCPBars *bar = new QCPBars(ui->CustomBar->xAxis, ui->CustomBar->yAxis);
     mCurBarTick++;
-    bar->setPen(QPen(colors[mCurBarTick % 4], 6));
-    bar->setBrush(QColor(colors[mCurBarTick % 4]));
+    bar->setPen(QPen(colors[numPod%14], 6));
+    bar->setBrush(QColor(colors[numPod%14]));
     QSharedPointer<QCPAxisTickerText> textTicker = qSharedPointerDynamicCast<QCPAxisTickerText>(ui->CustomBar->xAxis->ticker());
     textTicker->addTick(mCurBarTick, QString::number(numPod));
     mCurBar = bar;
@@ -55,7 +57,6 @@ void perf_bar::changeBar()
     mCurBar->data()->clear();
     mCurBar->addData(mCurBarTick, mCurMax);
     ui->CustomBar->xAxis->setRange(0, mCurBarTick+1);
-    ui->CustomBar->yAxis->setRange(0, mMaxFPS*1.5);
     ui->CustomBar->replot();
 }
 
@@ -63,6 +64,28 @@ void perf_bar::setPosition(double x, double y)
 {
     perf_bar::move(x, y);
 }
+
+void perf_bar::setMax(int max)
+{
+    ui->CustomBar->yAxis->setRange(0, max);
+    ui->CustomBar->replot();
+}
+
+void perf_bar::setPods(int numPods)
+{
+    ui->pods_lcdNumber->display(numPods);
+}
+
+void perf_bar::setGPUs(int numGPUs)
+{
+    ui->gpus_lcdNumber->display(numGPUs);
+}
+
+void perf_bar::setTotalGPUs(int numGPUs)
+{
+    ui->totalGPU_lcdNumber->display(numGPUs);
+}
+
 void perf_bar::closeBarView()
 {
     this->close();
