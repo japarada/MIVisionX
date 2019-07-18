@@ -7,9 +7,6 @@ perf_chart::perf_chart(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setStyleSheet("background-color: white;");
-    mFPSValue = 0;
-    mMaxFPS = 0;
-    initGraph();
 }
 
 perf_chart::~perf_chart()
@@ -28,6 +25,11 @@ void perf_chart::setGPUName(QString gpuName)
    ui->gpuName_label->setText(gpuName);
 }
 
+void perf_chart::setMode(int mode)
+{
+   mMode = mode;
+}
+
 void perf_chart::initGraph()
 {
     ui->CustomPlot->addGraph();
@@ -39,8 +41,8 @@ void perf_chart::initGraph()
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
 
-    // set default time duration to rb1 value
-    ui->rb1->setChecked(1);
+    // set default time duration to rb5 value
+    ui->rb5->setChecked(1);
 
     // x axis
     ui->CustomPlot->xAxis->setTicker(timeTicker);
@@ -63,7 +65,37 @@ void perf_chart::initGraph()
     connect(ui->CustomPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), ui->CustomPlot->yAxis2, SLOT(setRange(QCPRange)));
 
     // setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
-    connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+    if (mMode == 1) {
+        connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+    } else if (mMode == 2) {
+        connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlotPerPod()));
+        QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+        QVector<double> ticks;
+        QVector<QString> labels;
+        ticks << 0 << 130 << 260 << 390 << 520 << 650 << 780 << 910 << 1040 << 1170 << 1300;
+        labels << "0%" << "10%" << "20%" << "30%" << "40%" << "50%" << "60%" << "70%" << "80%" << "90%" << "100%";
+        textTicker->addTicks(ticks, labels);
+        ui->CustomPlot->yAxis->setTicker(textTicker);
+
+        QCPItemLine *line = new QCPItemLine(ui->CustomPlot);
+        line->setPen(QPen(Qt::black, 2, Qt::DotLine));
+        line->start->setCoords(0, 1300);
+        line->end->setCoords(INFINITY, 1300);
+    } else if (mMode == 3) {
+        connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+        QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+        QVector<double> ticks;
+        QVector<QString> labels;
+        ticks << 1300;
+        labels << "1X";
+        textTicker->addTicks(ticks, labels);
+        ui->CustomPlot->yAxis->setTicker(textTicker);
+
+        QCPItemLine *line = new QCPItemLine(ui->CustomPlot);
+        line->setPen(QPen(Qt::black, 2, Qt::DotLine));
+        line->start->setCoords(0, 1300);
+        line->end->setCoords(INFINITY, 1300);
+    }
 
     // rescale axis
     connect(ui->rb1, &QAbstractButton::clicked, this, &perf_chart::rescaleAxis);
@@ -122,6 +154,37 @@ void perf_chart::RealtimeDataSlot()
     ui->CustomPlot->replot();
 }
 
+void perf_chart::RealtimeDataSlotPerPod()
+{
+    static QTime time(QTime::currentTime());
+    double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
+    static double lastPointKey = 0;
+    if (key-lastPointKey > 0.005) // at most add point every 5 ms
+    {
+        mNumPods = (mNumPods > 0 ) ? mNumPods : 1;
+        ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue/mNumPods);
+        lastPointKey = key;
+#if defined(ENABLE_KUBERNETES_MODE)
+        if (mLastPod != mNumPods) {
+            if (mNumPods == mTempPod) {
+                mChangedCount++;
+                if (mChangedCount == 280) {
+                    changePods(key, mFPSValue/mNumPods);
+                }
+            }
+            else {
+                mChangedCount = 0;
+                mTempPod = mNumPods;
+            }
+        }
+#endif
+    }
+    if (ui->movingGraph->isChecked()) {
+        rescaleAxis(key);
+    }
+    ui->CustomPlot->replot();
+}
+
 #if defined(ENABLE_KUBERNETES_MODE)
 void perf_chart::changePods(double key, double value)
 {
@@ -137,11 +200,20 @@ void perf_chart::changePods(double key, double value)
     arrow->start->setParentAnchor(label->bottom);
     arrow->end->setCoords(key, value);
 
+    if (mMode == 3 && mLastPod > 1) {
+        QCPItemLine *line = new QCPItemLine(ui->CustomPlot);
+        line->setPen(QPen(Qt::black, 2, Qt::DotLine));
+        line->start->setCoords(0, value);
+        line->end->setCoords(INFINITY, value);
+        double scale = mCurMax / 1300;
+        QSharedPointer<QCPAxisTickerText> textTicker = qSharedPointerDynamicCast<QCPAxisTickerText>(ui->CustomPlot->yAxis->ticker());
+        textTicker->addTick(mCurMax, QString::number(scale, 'g', 2)+'X');
+    }
     mLastPod = mNumPods;
+    mCurMax = 0;
     ui->CustomPlot->addGraph();
     ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mLastPod%14], 6));
     bar->addBar(mNumPods);
-    mCurMax = 0;
     mCurGraph++;
     coloredGraph();
 }
@@ -240,6 +312,9 @@ void perf_chart::updateFPSValue(int fpsValue)
         mMaxFPS = mFPSValue;
         ui->maxfps_lcdNumber->display(mMaxFPS);
     }
+//    if (mFPSValue > mCurMax) {
+//        mCurMax = mFPSValue;
+//    }
     if (mNumPods != 0)
         bar->setFPS(fpsValue);
 }
@@ -277,6 +352,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
+    //setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }

@@ -74,6 +74,7 @@ public:
     QString modelName;
     QString cpuName;
     QString gpuName;
+    int mode;
     int maxImageDataSize;
     bool sendScaledImages;
     int sendFileName;
@@ -105,7 +106,7 @@ class inference_viewer : public QWidget
     Q_OBJECT
 
 public:
-    explicit inference_viewer(QString serverHost, int serverPort, QString modelName, QString cpuName, QString gpuName,
+    explicit inference_viewer(QString serverHost, int serverPort, QString modelName, QString cpuName, QString gpuName, int mode,
             QVector<QString> * dataLabels, QVector<QString> * dataHierarchy,
             QString dataFilename, QString dataFolder,
             int dimInput[3], int GPUs, int dimOutput[3], int maxImageDataSize,

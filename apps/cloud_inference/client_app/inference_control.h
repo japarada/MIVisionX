@@ -85,6 +85,7 @@ private:
     QComboBox * comboInvertInputChannels;
     QComboBox * comboPublishOptions;
     QComboBox * comboTopKResult;
+    QComboBox * comboMode;
     QComboBox * comboGPUName;
     QComboBox * comboCPUName;
     QLineEdit * editModelName;

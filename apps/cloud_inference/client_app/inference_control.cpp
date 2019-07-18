@@ -297,6 +297,13 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     comboTopKResult->setEnabled(false);
     controlLayout->addWidget(comboTopKResult, row, 1, 1, 1);
     connect(checkTopKResult, SIGNAL(clicked(bool)), this, SLOT(topKResultsEnable(bool)));
+    QLabel * mode = new QLabel("Mode:");
+    mode->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
+    mode->setAlignment(Qt::AlignHCenter);
+    controlLayout->addWidget(mode, row, 3, 1, 1);
+    comboMode = new QComboBox();
+    comboMode->addItems({"1", "2", "3"});
+    controlLayout->addWidget(comboMode, row, 4, 1, 1);
     row++;
     QLabel * labelGPUName = new QLabel("Server GPU:");
     labelGPUName->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
@@ -1039,6 +1046,7 @@ void inference_control::runInference()
     QString modelName = comboModelSelect->currentText();
     QString cpuName = comboCPUName->currentText();
     QString gpuName = comboGPUName->currentText();
+    int mode = comboMode->currentText().toInt();
 
     if(comboModelSelect->currentIndex() < numModelTypes) {
         modelName = compiler_status.message;
@@ -1065,9 +1073,8 @@ void inference_control::runInference()
     inference_panel *display_panel = new inference_panel;
     display_panel->setWindowIcon(QIcon(":/images/vega_icon_150.png"));
     //display_panel->show();
-
     inference_viewer * viewer = new inference_viewer(
-                editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName,
+                editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName, mode,
                 dataLabels, dataHierarchy, editImageListFile->text(), editImageFolder->text(),
                 dimInput, editGPUs->text().toInt(), dimOutput, maxDataSize, repeat_images, sendScaledImages, sendFileName, topKValue);
     viewer->setWindowIcon(QIcon(":/images/vega_icon_150.png"));

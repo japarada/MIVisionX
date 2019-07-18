@@ -80,7 +80,7 @@ inference_state::inference_state()
     graphButtonPressed = false;
 }
 
-inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName, QString cpuName, QString gpuName,
+inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName, QString cpuName, QString gpuName, int mode,
         QVector<QString> * dataLabels, QVector<QString> * dataHierarchy, QString dataFilename, QString dataFolder,
         int dimInput[3], int GPUs, int dimOutput[3], int maxImageDataSize,
         bool repeat_images, bool sendScaledImages, int sendFileName_, int topKValue,
@@ -124,7 +124,8 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     progress.images_sent = 0;
     progress.images_decoded = 0;
     progress.images_loaded = 0;
-
+    state->chart.setMode(mode);
+    state->chart.initGraph();
     ui->setupUi(this);
     setMinimumWidth(800);
     setMinimumHeight(800);
