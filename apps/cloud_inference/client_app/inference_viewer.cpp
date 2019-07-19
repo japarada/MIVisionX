@@ -1243,7 +1243,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		state->performance.setPods(connections);
         state->performance.setTotalGPU(state->GPUs*connections);
         state->chart.setTotalGPUs(state->GPUs*connections);
-        //state->chart.setPods(connections);
+        state->chart.setPods(connections);
         state->chart.setGPUs(state->GPUs);
 #else
 		state->chart.setGPUs(state->GPUs*connections);

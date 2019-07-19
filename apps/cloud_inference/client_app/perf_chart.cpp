@@ -278,7 +278,7 @@ void perf_chart::rescaleAxis(double key)
 
 void perf_chart::updateFPSValue(int fpsValue)
 {
-    fpsValue *= mDummyPods;
+  //  fpsValue *= mDummyPods;
     if (mMode == 1) {
         mFPSValue = fpsValue;
         if (mFPSValue > mMaxFPS) {
@@ -334,8 +334,8 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-    setPods(++mDummyPods);
-//    bar->closeBarView();
-//    this->close();
+//    setPods(++mDummyPods);
+    bar->closeBarView();
+    this->close();
 }
 
