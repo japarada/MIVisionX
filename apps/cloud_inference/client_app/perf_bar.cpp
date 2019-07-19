@@ -17,10 +17,6 @@ perf_bar::~perf_bar()
 
 void perf_bar::initGraph()
 {
-    //ui->CustomBar->plotLayout()->insertRow(0);
-    //QCPTextElement *title = new QCPTextElement(ui->CustomBar, "Max FPS per pods", QFont("sans", 15, QFont::Bold));
-    //ui->CustomBar->plotLayout()->addElement(0, 0, title);
-
     QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
     ui->CustomBar->xAxis->setTicker(textTicker);
     ui->CustomBar->xAxis->setLabel("Pod(s)");
