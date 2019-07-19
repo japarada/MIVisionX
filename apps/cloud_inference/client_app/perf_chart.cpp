@@ -68,12 +68,14 @@ void perf_chart::initGraph()
     if (mMode == 1) {
         connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
     } else if (mMode == 2) {
-        connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlotPerPod()));
+        connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+        ui->setMax->hide();
+        ui->MaxFPS->setText("Workload %");
         QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
         QVector<double> ticks;
         QVector<QString> labels;
-        ticks << 0 << 130 << 260 << 390 << 520 << 650 << 780 << 910 << 1040 << 1170 << 1300;
-        labels << "0%" << "10%" << "20%" << "30%" << "40%" << "50%" << "60%" << "70%" << "80%" << "90%" << "100%";
+        ticks << 0 << 130 << 260 << 390 << 520 << 650 << 780 << 910 << 1040 << 1170 << 1300 << 1430 << 1560 << 1690;
+        labels << "0%" << "10%" << "20%" << "30%" << "40%" << "50%" << "60%" << "70%" << "80%" << "90%" << "100%" << "110%" << "120%" << "130%";
         textTicker->addTicks(ticks, labels);
         ui->CustomPlot->yAxis->setTicker(textTicker);
 
@@ -137,39 +139,8 @@ void perf_chart::RealtimeDataSlot()
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 280) {
+                if (mChangedCount == 500) {
                     changePods(key, mFPSValue);
-                }
-            }
-            else {
-                mChangedCount = 0;
-                mTempPod = mNumPods;
-            }
-        }
-#endif
-    }
-    if (ui->movingGraph->isChecked()) {
-        rescaleAxis(key);
-    }
-    ui->CustomPlot->replot();
-}
-
-void perf_chart::RealtimeDataSlotPerPod()
-{
-    static QTime time(QTime::currentTime());
-    double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
-    static double lastPointKey = 0;
-    if (key-lastPointKey > 0.005) // at most add point every 5 ms
-    {
-        mNumPods = (mNumPods > 0 ) ? mNumPods : 1;
-        ui->CustomPlot->graph(mCurGraph)->addData(key, mFPSValue/mNumPods);
-        lastPointKey = key;
-#if defined(ENABLE_KUBERNETES_MODE)
-        if (mLastPod != mNumPods) {
-            if (mNumPods == mTempPod) {
-                mChangedCount++;
-                if (mChangedCount == 280) {
-                    changePods(key, mFPSValue/mNumPods);
                 }
             }
             else {
@@ -307,19 +278,27 @@ void perf_chart::rescaleAxis(double key)
 
 void perf_chart::updateFPSValue(int fpsValue)
 {
-    mFPSValue = fpsValue;
-    if (mMode == 2 && mNumPod > 1) {
-       mFPSValue /= mNumPod;
+  //  fpsValue *= mDummyPods;
+    if (mMode == 1) {
+        mFPSValue = fpsValue;
+        if (mFPSValue > mMaxFPS) {
+            mMaxFPS = mFPSValue;
+            ui->maxfps_lcdNumber->display(mMaxFPS);
+        }
+        if (mNumPods != 0)
+            bar->setFPS(fpsValue);
     }
-    if (mFPSValue > mMaxFPS) {
-        mMaxFPS = mFPSValue;
-        ui->maxfps_lcdNumber->display(mMaxFPS);
+    else if (mMode == 2) {
+        mNumPods = mNumPods > 0 ? mNumPods : 1;
+        mFPSValue = fpsValue / mNumPods;
+        if (mFPSValue > mMaxFPS) {
+            mMaxFPS = mFPSValue;
+        }
+        ui->maxfps_lcdNumber->display(mFPSValue / 13);
+        if (mNumPods != 0) {
+            bar->setFPS(mFPSValue);
+        }
     }
-//    if (mFPSValue > mCurMax) {
-//        mCurMax = mFPSValue;
-//    }
-    if (mNumPods != 0)
-        bar->setFPS(fpsValue);
 }
 
 #if defined(ENABLE_KUBERNETES_MODE)
@@ -355,7 +334,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-    //setPods(++mDummyPods);
+//    setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }

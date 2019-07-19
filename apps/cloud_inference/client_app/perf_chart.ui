@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1232</width>
-    <height>877</height>
+    <height>940</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -527,6 +527,9 @@ color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QCheckBox" name="setMax">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string>Set Max</string>
             </property>
