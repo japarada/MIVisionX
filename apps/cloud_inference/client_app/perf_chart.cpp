@@ -295,8 +295,9 @@ void perf_chart::updateFPSValue(int fpsValue)
 
         if (mFPSValue > mMaxFPS) {
             mMaxFPS = mFPSValue;
-            ui->maxfps_lcdNumber->display(mMaxFPS/localMaxFPS);
         }
+        double scaling = fpsValue / localMaxFPS;
+        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'g', 2));
         if (mNumPods != 0)
             bar->setFPS(fpsValue);
     }
