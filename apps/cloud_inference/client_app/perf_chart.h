@@ -61,7 +61,6 @@ public slots:
     void fixLabelLocation();
     void changePods(double key, double value);
     void coloredGraph();
-    void setDisplay(double scale);
     void barChart();
 #endif
 };

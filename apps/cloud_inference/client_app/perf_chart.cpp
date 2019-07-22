@@ -295,7 +295,7 @@ void perf_chart::updateFPSValue(int fpsValue)
 
         if (mFPSValue > mMaxFPS) {
             mMaxFPS = mFPSValue;
-            ui->maxfps_lcdNumber->display(mMaxFPS);
+            ui->maxfps_lcdNumber->display(mMaxFPS/localMaxFPS);
         }
         if (mNumPods != 0)
             bar->setFPS(fpsValue);
@@ -335,7 +335,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-//    setPods(++mDummyPods);
+    setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }
