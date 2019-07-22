@@ -111,6 +111,7 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     state->modelName = modelName;
     state->cpuName = cpuName;
     state->gpuName = gpuName;
+    state->mode = mode;
     state->sendScaledImages = sendScaledImages;
     state->sendFileName = sendFileName_;
     state->topKValue = topKValue;
@@ -126,6 +127,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     progress.images_loaded = 0;
     state->chart.setMode(mode);
     state->chart.initGraph();
+    state->performance.setMode(mode);
+    if (mode == 3) {
+        state->performance.hideFPS();
+    }
     ui->setupUi(this);
     setMinimumWidth(800);
     setMinimumHeight(800);
@@ -1115,7 +1120,12 @@ void inference_viewer::paintEvent(QPaintEvent *)
         painter.drawRect(state->statusBarRect);
         if(progress.repeat_images) {
             QString text;
-            text.sprintf("Cycling through %d images from the image list [processed %d images]", state->imagePixmapCount, progress.images_received);
+            if (state->mode == 3) {
+                text.sprintf("Cycling through %d images from the image list", state->imagePixmapCount);
+            }
+            else {
+                text.sprintf("Cycling through %d images from the image list [processed %d images]", state->imagePixmapCount, progress.images_received);
+            }
             statusText += text;
         }
         else if (progress.completed) {
@@ -1137,9 +1147,12 @@ void inference_viewer::paintEvent(QPaintEvent *)
         }
         else {
             QString text;
-            text.sprintf("Processing: [scheduled %d/%d images] [processed %d/%d images]",
-                               progress.images_sent, state->imagePixmapCount,
-                               progress.images_received, state->imagePixmapCount);
+            if (state->mode == 3) {
+                text.sprintf("Cycling through %d images from the image list", state->imagePixmapCount);
+            }
+            else {
+                text.sprintf("Cycling through %d images from the image list [processed %d images]", state->imagePixmapCount, progress.images_received);
+            }
             statusText += text;
         }
     }
@@ -1249,9 +1262,11 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		state->chart.setGPUs(state->GPUs*connections);
 #endif
         if(imagesPerSec > 0) {
-            QString text;
-            text.sprintf("... %.1f images/sec", imagesPerSec);
-            statusText += text;
+            if (state->mode != 3) {
+                QString text;
+                text.sprintf("... %.1f images/sec", imagesPerSec);
+                statusText += text;
+            }
         }
     }
 

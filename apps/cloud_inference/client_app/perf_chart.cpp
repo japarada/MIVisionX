@@ -84,19 +84,19 @@ void perf_chart::initGraph()
         line->start->setCoords(0, 1300);
         line->end->setCoords(INFINITY, 1300);
     } else if (mMode == 3) {
+        ui->setMax->hide();
+        ui->MaxFPS->setText("Performance Scale");
         connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
         QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
         QVector<double> ticks;
         QVector<QString> labels;
-        ticks << 1300;
-        labels << "1X";
+        ticks << localMaxFPS/2 << localMaxFPS << localMaxFPS*2 << localMaxFPS*3 << localMaxFPS*4 << localMaxFPS*5 << localMaxFPS*6 << localMaxFPS*7 << localMaxFPS*8 << localMaxFPS*9 <<
+                 localMaxFPS*10 << localMaxFPS*11 << localMaxFPS*12 << localMaxFPS*13 << localMaxFPS*14 << localMaxFPS*15 << localMaxFPS*16 << localMaxFPS*17 << localMaxFPS*18 << localMaxFPS*19
+                  << localMaxFPS*20 << localMaxFPS*21 << localMaxFPS*22 << localMaxFPS*23 << localMaxFPS*24;
+        labels << "0.5x" << "1x" << "2x" << "3x" << "4x" << "5x" << "6x" << "7x" << "8x" << "9x" << "10x" << "11x" << "12x" << "13x" << "14x" << "15x" << "16x" << "17x" << "18x" << "19x" <<
+                  "17x" << "18x" << "19x" << "20x" << "21x" << "22x" << "23x" << "24x";
         textTicker->addTicks(ticks, labels);
         ui->CustomPlot->yAxis->setTicker(textTicker);
-
-        QCPItemLine *line = new QCPItemLine(ui->CustomPlot);
-        line->setPen(QPen(Qt::black, 2, Qt::DotLine));
-        line->start->setCoords(0, 1300);
-        line->end->setCoords(INFINITY, 1300);
     }
 
     // rescale axis
@@ -139,7 +139,7 @@ void perf_chart::RealtimeDataSlot()
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 500) {
+                if (mChangedCount == 380) {
                     changePods(key, mFPSValue);
                 }
             }
@@ -171,15 +171,6 @@ void perf_chart::changePods(double key, double value)
     arrow->start->setParentAnchor(label->bottom);
     arrow->end->setCoords(key, value);
 
-    if (mMode == 3 && mLastPod > 1) {
-        QCPItemLine *line = new QCPItemLine(ui->CustomPlot);
-        line->setPen(QPen(Qt::black, 2, Qt::DotLine));
-        line->start->setCoords(0, value);
-        line->end->setCoords(INFINITY, value);
-        double scale = mCurMax / 1300;
-        QSharedPointer<QCPAxisTickerText> textTicker = qSharedPointerDynamicCast<QCPAxisTickerText>(ui->CustomPlot->yAxis->ticker());
-        textTicker->addTick(mCurMax, QString::number(scale, 'g', 2)+'X');
-    }
     mLastPod = mNumPods;
     mCurMax = 0;
     ui->CustomPlot->addGraph();
@@ -278,7 +269,7 @@ void perf_chart::rescaleAxis(double key)
 
 void perf_chart::updateFPSValue(int fpsValue)
 {
-  //  fpsValue *= mDummyPods;
+    //fpsValue *= mDummyPods;
     if (mMode == 1) {
         mFPSValue = fpsValue;
         if (mFPSValue > mMaxFPS) {
@@ -298,6 +289,16 @@ void perf_chart::updateFPSValue(int fpsValue)
         if (mNumPods != 0) {
             bar->setFPS(mFPSValue);
         }
+    }
+    else if (mMode == 3) {
+        mFPSValue = fpsValue;
+
+        if (mFPSValue > mMaxFPS) {
+            mMaxFPS = mFPSValue;
+            ui->maxfps_lcdNumber->display(mMaxFPS/localMaxFPS);
+        }
+        if (mNumPods != 0)
+            bar->setFPS(fpsValue);
     }
 }
 
@@ -334,7 +335,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-//    setPods(++mDummyPods);
+    setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }
