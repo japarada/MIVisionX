@@ -53,9 +53,8 @@ void perf_graph::updateFPSValue(float fps)
         float scale = fps / localMaxFPS;
         if (maxFPS < scale) {
             maxFPS = scale;
-            ui->maxFPS_lcdNumber->display(QString("%1X").arg((double)maxFPS, 0, 'g', 2));
-
         }
+        ui->maxFPS_lcdNumber->display(QString("%1").arg((double)scale, 0, 'g', 2));
     }
     else {
         fps = int(fps);

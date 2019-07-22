@@ -92,9 +92,9 @@ void perf_chart::initGraph()
         QVector<QString> labels;
         ticks << localMaxFPS/2 << localMaxFPS << localMaxFPS*2 << localMaxFPS*3 << localMaxFPS*4 << localMaxFPS*5 << localMaxFPS*6 << localMaxFPS*7 << localMaxFPS*8 << localMaxFPS*9 <<
                  localMaxFPS*10 << localMaxFPS*11 << localMaxFPS*12 << localMaxFPS*13 << localMaxFPS*14 << localMaxFPS*15 << localMaxFPS*16 << localMaxFPS*17 << localMaxFPS*18 << localMaxFPS*19
-                  << localMaxFPS*20 << localMaxFPS*21 << localMaxFPS*22 << localMaxFPS*23 << localMaxFPS*24;
+                  << localMaxFPS*20 << localMaxFPS*21 << localMaxFPS*22 << localMaxFPS*23 << localMaxFPS*24 << localMaxFPS*25 << localMaxFPS*26 << localMaxFPS*27;
         labels << "0.5x" << "1x" << "2x" << "3x" << "4x" << "5x" << "6x" << "7x" << "8x" << "9x" << "10x" << "11x" << "12x" << "13x" << "14x" << "15x" << "16x" << "17x" << "18x" << "19x" <<
-                  "17x" << "18x" << "19x" << "20x" << "21x" << "22x" << "23x" << "24x";
+                  "17x" << "18x" << "19x" << "20x" << "21x" << "22x" << "23x" << "24x" << "25x" << "26x" << "27x" << "28x" << "29x" << "30x";
         textTicker->addTicks(ticks, labels);
         ui->CustomPlot->yAxis->setTicker(textTicker);
     }
