@@ -18,6 +18,8 @@ public:
 private:
     Ui::perf_graph *ui;
     float maxFPS;
+    int localMaxFPS = 1250;
+    int mMode = 0;
 
 public slots:
      void closePerformanceView();
@@ -30,6 +32,8 @@ public slots:
      void updateElapsedTime(QString elapsedTime);
      void updateFPSValue(float fps);
      void updateTotalImagesValue(int images);
+     void setMode(int mode);
+     void hideFPS();
 };
 
 #endif // PERF_GRAPH_H

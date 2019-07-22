@@ -39,6 +39,7 @@ private:
     int mLastPod = 0;
     int mCurGraph = 0;
     int mCurMax = 0;
+    int localMaxFPS = 1250;
     std::vector<std::tuple<QCPItemText *, double, double, int>> mLabels;
     perf_bar *bar;
     QCPItemLine *mCurLine;
@@ -60,6 +61,7 @@ public slots:
     void fixLabelLocation();
     void changePods(double key, double value);
     void coloredGraph();
+    void setDisplay(double scale);
     void barChart();
 #endif
 };
