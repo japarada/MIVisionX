@@ -385,7 +385,6 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     checkScaledImages = new QCheckBox("Send Resized Images");
     checkScaledImages->setChecked(true);
     controlLayout->addWidget(checkScaledImages, row, 2, 1, 1);
-    checkRepeatImages = nullptr;
     row++;
     QLabel * labelLoopCount = new QLabel("Loop Count:");
     labelLoopCount->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
@@ -411,8 +410,6 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
 void inference_control::saveConfig()
 {
     bool repeat_images = false;
-    if(checkRepeatImages && checkRepeatImages->checkState())
-        repeat_images = true;
     int maxDataSize = editMaxDataSize->text().toInt();
     if(maxDataSize < 0) {
         repeat_images = true;
@@ -476,9 +473,6 @@ void inference_control::loadConfig()
             bool repeat_images = false;
             if(fileInput.readLine() == "1")
                 repeat_images = true;
-            if(checkRepeatImages) {
-                checkRepeatImages->setChecked(repeat_images);
-            }
             else if(repeat_images && editMaxDataSize->text().length() > 0 && editMaxDataSize->text()[0] != '-') {
                 editMaxDataSize->setText("-" + editMaxDataSize->text());
             }
