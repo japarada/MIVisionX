@@ -39,7 +39,7 @@ private:
     int mLastPod = 0;
     int mCurGraph = 0;
     int mCurMax = 0;
-    int localMaxFPS = 1250;
+    int localMaxFPS = 1275;
     int mThreshold = 320;
     std::vector<std::tuple<QCPItemText *, double, double, int>> mLabels;
     perf_bar *bar;
