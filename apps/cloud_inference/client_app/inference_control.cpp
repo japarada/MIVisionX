@@ -386,11 +386,14 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     checkScaledImages->setChecked(true);
     controlLayout->addWidget(checkScaledImages, row, 2, 1, 1);
     checkRepeatImages = nullptr;
-    if(operationMode) {
-        checkRepeatImages = new QCheckBox("Repeat Until Abort");
-        checkRepeatImages->setChecked(true);
-        controlLayout->addWidget(checkRepeatImages, row, 3, 1, 1);
-    }
+    row++;
+    QLabel * labelLoopCount = new QLabel("Loop Count:");
+    labelLoopCount->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
+    labelLoopCount->setAlignment(Qt::AlignLeft);
+    controlLayout->addWidget(labelLoopCount, row, 0, 1, 1);
+    comboLoopCount = new QComboBox();
+    comboLoopCount->addItems({ "1", "2", "5", "10", "Infinite" });
+    controlLayout->addWidget(comboLoopCount, row, 1, 1, 1);
     row++;
 
     setLayout(controlLayout);
