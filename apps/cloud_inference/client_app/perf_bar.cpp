@@ -29,8 +29,8 @@ void perf_bar::addBar(int numPod)
 {
     QCPBars *bar = new QCPBars(ui->CustomBar->xAxis, ui->CustomBar->yAxis);
     mCurBarTick++;
-    bar->setPen(QPen(colors[numPod%14], 6));
-    bar->setBrush(QColor(colors[numPod%14]));
+    bar->setPen(QPen(colors[numPod%colorNum], 6));
+    bar->setBrush(QColor(colors[numPod%colorNum]));
     QSharedPointer<QCPAxisTickerText> textTicker = qSharedPointerDynamicCast<QCPAxisTickerText>(ui->CustomBar->xAxis->ticker());
     textTicker->addTick(mCurBarTick, QString::number(numPod));
     mCurBar = bar;

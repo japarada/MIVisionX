@@ -4,8 +4,31 @@
 #include <QDialog>
 #include <qcustomplot.h>
 
-static const Qt::GlobalColor colors[15] = {Qt::darkRed, Qt::darkBlue, Qt::darkYellow, Qt::darkGreen, Qt::darkMagenta, Qt::darkCyan, Qt::darkGray,
-                                          Qt::red, Qt::blue, Qt::green, Qt::yellow, Qt::magenta, Qt::cyan, Qt::black, Qt::gray};
+//static Qt::GlobalColor colors[16] = {Qt::darkRed, Qt::darkBlue, Qt::darkYellow, Qt::darkGreen, Qt::darkMagenta, Qt::darkCyan, Qt::darkGray,
+//                                          Qt::red, Qt::blue, Qt::green, Qt::yellow, Qt::magenta, Qt::cyan, Qt::black, Qt::gray, QColor(320, 320, 320)};
+
+static const int colorNum = 19;
+static QColor colors[colorNum] = {
+    { 0,255,0 },
+    { 0, 0,255 },
+    { 255, 0,0 },
+    { 250, 150, 70 },
+    { 102,102,156 },
+    { 190,153,153 },
+    { 0,  0,   0 },
+    { 220,220,  0 },
+    { 0, 255, 0 },
+    { 152,251,152 },
+    { 135,206,250 },
+    { 220, 20, 60 },
+    { 255,  0,  0 },
+    { 0,  0,255 },
+    { 0,  0, 70 },
+    { 0, 60,100 },
+    { 0, 80,100 },
+    { 0,  0,230 },
+    { 119, 11, 32 }
+};
 
 namespace Ui {
 class perf_bar;
