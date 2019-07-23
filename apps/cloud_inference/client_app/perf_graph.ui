@@ -331,7 +331,7 @@ color: rgb(0, 0, 0);</string>
       <widget class="QLabel" name="x_label">
        <property name="font">
         <font>
-         <pointsize>55</pointsize>
+         <pointsize>68</pointsize>
         </font>
        </property>
        <property name="text">
