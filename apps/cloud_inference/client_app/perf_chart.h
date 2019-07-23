@@ -40,6 +40,7 @@ private:
     int mCurGraph = 0;
     int mCurMax = 0;
     int localMaxFPS = 1250;
+    int mThreshold = 320;
     std::vector<std::tuple<QCPItemText *, double, double, int>> mLabels;
     perf_bar *bar;
     QCPItemLine *mCurLine;

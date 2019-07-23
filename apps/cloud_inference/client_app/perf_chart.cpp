@@ -142,7 +142,7 @@ void perf_chart::RealtimeDataSlot()
         if (mLastPod != mNumPods) {
             if (mNumPods == mTempPod) {
                 mChangedCount++;
-                if (mChangedCount == 380) {
+                if (mChangedCount == mThreshold) {
                     changePods(key, mFPSValue);
                 }
             }
@@ -162,8 +162,11 @@ void perf_chart::RealtimeDataSlot()
 #if defined(ENABLE_KUBERNETES_MODE)
 void perf_chart::changePods(double key, double value)
 {
+    ui->CustomPlot->addGraph();
+    ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mLastPod%colorNum], 6));
+    mCurGraph++;
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
-    label->setText("Pods=" % QString::number(mNumPods));
+    label->setText("GPUs=" % QString::number(mNumPods));
     label->setFont(QFont(font().family(), 12));
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
@@ -176,10 +179,7 @@ void perf_chart::changePods(double key, double value)
 
     mLastPod = mNumPods;
     mCurMax = 0;
-    ui->CustomPlot->addGraph();
-    ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mLastPod%14], 6));
     bar->addBar(mNumPods);
-    mCurGraph++;
     coloredGraph();
 }
 
@@ -188,11 +188,11 @@ void perf_chart::coloredGraph()
     if (ui->coloredGraph->isChecked()) {
         for (int i=0; i<=mCurGraph; i++) {
             int numPod = std::get<3>(mLabels[i]);
-            ui->CustomPlot->graph(i)->setPen(QPen(colors[numPod%14], 6));
+            ui->CustomPlot->graph(i)->setPen(QPen(colors[numPod%colorNum], 6));
         }
         for (unsigned int i=0; i<mLabels.size(); i++) {
             int numPod = std::get<3>(mLabels[i]);
-            std::get<0>(mLabels[i])->setPen(QPen(colors[numPod%14], 3));
+            std::get<0>(mLabels[i])->setPen(QPen(colors[numPod%colorNum], 3));
         }
     }
     else {
@@ -233,6 +233,7 @@ void perf_chart::fixLabelLocation()
                 curRect.setBottomRight(QPointF(newX+curRect.width(), newY+curRect.height()));
             }
         }
+        ui->CustomPlot->replot();
         prevRect = curRect;
     }
 }
@@ -299,7 +300,7 @@ void perf_chart::updateFPSValue(float fpsValue)
             mMaxFPS = mFPSValue;
         }
         float scaling = fpsValue / localMaxFPS;
-        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 3));
+        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 2));
         if (mNumPods != 0)
             bar->setFPS(fpsValue);
     }
@@ -309,7 +310,7 @@ void perf_chart::updateFPSValue(float fpsValue)
 void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
-    ui->pods_lcdNumber->display(numPods);
+    //ui->pods_lcdNumber->display(numPods);
     bar->setPods(numPods);
 }
 
@@ -338,7 +339,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-//    setPods(++mDummyPods);
+    //setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }
