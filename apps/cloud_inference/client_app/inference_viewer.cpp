@@ -150,6 +150,9 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     const QDateTime now = QDateTime::currentDateTime();
     QString DateTime_test = now.toString("yyyy-MM-dd hh:mm:ss");
     state->startTime.sprintf("%s %s",DateTime_test.toStdString().c_str(),abbr.toStdString().c_str());
+    inference_viewer::move(QApplication::desktop()->screen()->rect().center().x() - inference_viewer::width() - 150, QApplication::desktop()->screen()->rect().center().y() - inference_viewer::height() / 2);
+    state->performance.move(QApplication::desktop()->screen()->rect().center().x() + state->performance.width() + 150, QApplication::desktop()->screen()->rect().center().y() - state->performance.height() / 2);
+    showPerfResults();
 }
 
 inference_viewer::~inference_viewer()
@@ -318,6 +321,7 @@ void inference_viewer::showChartResults()
 #endif
     state->chart.setCPUName(state->cpuName);
     state->chart.setGPUName(state->gpuName);
+    state->chart.move(QApplication::desktop()->screen()->rect().center().x() + state->performance.width() + 150, QApplication::desktop()->screen()->rect().center().y() - state->performance.height() / 2);
     state->chart.show();
 }
 

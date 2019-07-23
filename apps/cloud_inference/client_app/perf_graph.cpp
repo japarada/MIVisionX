@@ -31,7 +31,7 @@ void perf_graph::updateElapsedTime(QString elapsedTime)
 }
 void perf_graph::setNumGPU(int numGPU)
 {
-   ui->GPU_lcdNumber->display(numGPU);
+   //ui->GPU_lcdNumber->display(numGPU);
 }
 void perf_graph::setTotalGPU(int totalGPU)
 {
@@ -39,7 +39,7 @@ void perf_graph::setTotalGPU(int totalGPU)
 }
 void perf_graph::setPods(int numPods)
 {
-   ui->pods_lcdNumber->display(numPods);
+   //ui->pods_lcdNumber->display(numPods);
 }
 void perf_graph::resetPerformanceView()
 {
@@ -50,7 +50,7 @@ void perf_graph::updateFPSValue(float fps)
 {
     if (mMode == 3) {
         float scale = fps / localMaxFPS;
-        ui->fps_lcdNumber->display(QString("%1").arg((double)scale, 0, 'f', 3));
+        ui->fps_lcdNumber->display(QString("%1").arg((double)scale, 0, 'f', 2));
     }
     else {
         fps = int(fps);

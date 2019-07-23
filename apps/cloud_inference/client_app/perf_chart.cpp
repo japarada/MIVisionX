@@ -166,7 +166,7 @@ void perf_chart::changePods(double key, double value)
     ui->CustomPlot->graph(mCurGraph)->setPen(QPen(colors[mLastPod%colorNum], 6));
     mCurGraph++;
     QCPItemText *label = new QCPItemText(ui->CustomPlot);
-    label->setText("Pods=" % QString::number(mNumPods));
+    label->setText("GPUs=" % QString::number(mNumPods));
     label->setFont(QFont(font().family(), 12));
     label->setPen(QPen(Qt::black));
     label->setPadding(QMargins(2,1,2,1));
@@ -300,7 +300,7 @@ void perf_chart::updateFPSValue(float fpsValue)
             mMaxFPS = mFPSValue;
         }
         float scaling = fpsValue / localMaxFPS;
-        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 3));
+        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 2));
         if (mNumPods != 0)
             bar->setFPS(fpsValue);
     }
@@ -310,7 +310,7 @@ void perf_chart::updateFPSValue(float fpsValue)
 void perf_chart::setPods(int numPods)
 {
     mNumPods = numPods;
-    ui->pods_lcdNumber->display(numPods);
+    //ui->pods_lcdNumber->display(numPods);
     bar->setPods(numPods);
 }
 
