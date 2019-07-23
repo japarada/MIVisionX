@@ -392,7 +392,7 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     labelLoopCount->setAlignment(Qt::AlignLeft);
     controlLayout->addWidget(labelLoopCount, row, 0, 1, 1);
     comboLoopCount = new QComboBox();
-    comboLoopCount->addItems({ "1", "2", "5", "10", "Infinite" });
+    comboLoopCount->addItems({ "1", "2", "5", "10", "Repeat until abort" });
     controlLayout->addWidget(comboLoopCount, row, 1, 1, 1);
     row++;
 
