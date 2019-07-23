@@ -67,8 +67,10 @@ void perf_chart::initGraph()
     // setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
     if (mMode == 1) {
         connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+        ui->x_label->hide();
     } else if (mMode == 2) {
         connect(&timer, SIGNAL(timeout()), this, SLOT(RealtimeDataSlot()));
+        ui->x_label->hide();
         ui->setMax->hide();
         ui->MaxFPS->setText("Workload %");
         QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
@@ -90,11 +92,12 @@ void perf_chart::initGraph()
         QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
         QVector<double> ticks;
         QVector<QString> labels;
-        ticks << localMaxFPS/2 << localMaxFPS << localMaxFPS*2 << localMaxFPS*3 << localMaxFPS*4 << localMaxFPS*5 << localMaxFPS*6 << localMaxFPS*7 << localMaxFPS*8 << localMaxFPS*9 <<
-                 localMaxFPS*10 << localMaxFPS*11 << localMaxFPS*12 << localMaxFPS*13 << localMaxFPS*14 << localMaxFPS*15 << localMaxFPS*16 << localMaxFPS*17 << localMaxFPS*18 << localMaxFPS*19
-                  << localMaxFPS*20 << localMaxFPS*21 << localMaxFPS*22 << localMaxFPS*23 << localMaxFPS*24 << localMaxFPS*25 << localMaxFPS*26 << localMaxFPS*27;
-        labels << "0.5x" << "1x" << "2x" << "3x" << "4x" << "5x" << "6x" << "7x" << "8x" << "9x" << "10x" << "11x" << "12x" << "13x" << "14x" << "15x" << "16x" << "17x" << "18x" << "19x" <<
-                  "17x" << "18x" << "19x" << "20x" << "21x" << "22x" << "23x" << "24x" << "25x" << "26x" << "27x" << "28x" << "29x" << "30x";
+        for (int i=1; i<50; i++) {
+            ticks << localMaxFPS*i;
+            QString str;
+            str = QString("%1x").arg(i);
+            labels << str;
+        }
         textTicker->addTicks(ticks, labels);
         ui->CustomPlot->yAxis->setTicker(textTicker);
     }
@@ -267,7 +270,7 @@ void perf_chart::rescaleAxis(double key)
 #endif
 }
 
-void perf_chart::updateFPSValue(int fpsValue)
+void perf_chart::updateFPSValue(float fpsValue)
 {
     //fpsValue *= mDummyPods;
     if (mMode == 1) {
@@ -292,12 +295,11 @@ void perf_chart::updateFPSValue(int fpsValue)
     }
     else if (mMode == 3) {
         mFPSValue = fpsValue;
-
         if (mFPSValue > mMaxFPS) {
             mMaxFPS = mFPSValue;
         }
-        double scaling = fpsValue / localMaxFPS;
-        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'g', 2));
+        float scaling = fpsValue / localMaxFPS;
+        ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 3));
         if (mNumPods != 0)
             bar->setFPS(fpsValue);
     }
@@ -336,7 +338,7 @@ void perf_chart::setTotalGPUs(int numGPUs)
 
 void perf_chart::closeChartView()
 {
-    setPods(++mDummyPods);
+//    setPods(++mDummyPods);
     bar->closeBarView();
     this->close();
 }
