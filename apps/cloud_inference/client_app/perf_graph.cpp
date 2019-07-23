@@ -7,7 +7,6 @@ perf_graph::perf_graph(QWidget *parent) :
 {
     ui->setupUi(this);
     maxFPS = 0;
-
 }
 
 perf_graph::~perf_graph()
@@ -51,10 +50,7 @@ void perf_graph::updateFPSValue(float fps)
 {
     if (mMode == 3) {
         float scale = fps / localMaxFPS;
-        if (maxFPS < scale) {
-            maxFPS = scale;
-        }
-        ui->maxFPS_lcdNumber->display(QString("%1").arg((double)scale, 0, 'g', 2));
+        ui->fps_lcdNumber->display(QString("%1").arg((double)scale, 0, 'f', 3));
     }
     else {
         fps = int(fps);
@@ -77,9 +73,9 @@ void perf_graph::setMode(int mode)
 }
 void perf_graph::hideFPS()
 {
-    ui->fps_label->hide();
-    ui->fps_lcdNumber->hide();
-    ui->maxFPS_label->setText("Performance scaling");
+    ui->maxFPS_label->hide();
+    ui->maxFPS_lcdNumber->hide();
+    ui->fps_label->setText("Performance scaling");
     ui->elapsedTime_label->hide();
     ui->ElapsedTimeName_label->hide();
 }

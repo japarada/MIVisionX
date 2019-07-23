@@ -51,7 +51,7 @@ public slots:
     void setGPUName(QString gpuName);
     void setMode(int mode);
     void RealtimeDataSlot();
-    void updateFPSValue(int fpsValue);
+    void updateFPSValue(float fpsValue);
     void rescaleAxis(double key);
     void closeChartView();
     void setTotalGPUs(int numGPUs);
