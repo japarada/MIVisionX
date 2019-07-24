@@ -1044,7 +1044,14 @@ void inference_control::runInference()
     QString cpuName = comboCPUName->currentText();
     QString gpuName = comboGPUName->currentText();
     int mode = comboMode->currentText().toInt();
-
+    int loopCount;
+    printf("hi\n");
+    if (comboLoopCount->currentText() == "Repeat until abort") {
+        loopCount = -1;
+    }
+    else {
+        loopCount = comboLoopCount->currentText().toInt();
+    }
     if(comboModelSelect->currentIndex() < numModelTypes) {
         modelName = compiler_status.message;
     }
@@ -1073,7 +1080,7 @@ void inference_control::runInference()
     inference_viewer * viewer = new inference_viewer(
                 editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName, mode,
                 dataLabels, dataHierarchy, editImageListFile->text(), editImageFolder->text(),
-                dimInput, editGPUs->text().toInt(), dimOutput, maxDataSize, repeat_images, sendScaledImages, sendFileName, topKValue);
+                dimInput, editGPUs->text().toInt(), dimOutput, maxDataSize, loopCount, sendScaledImages, sendFileName, topKValue);
     viewer->setWindowIcon(QIcon(":/images/vega_icon_150.png"));
     viewer->show();
     close();

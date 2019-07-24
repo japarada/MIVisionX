@@ -184,7 +184,17 @@ void inference_receiver::run()
                     break;
                 if(nextImageToSend >= imageCount) {
                     if(progress->repeat_images) {
-                        nextImageToSend = 0;
+                        if (progress->loopCount > 1) {
+                            progress->loopCount--;
+                            nextImageToSend = 0;
+                        }
+                        else if (progress->loopCount == 1) {
+                            progress->repeat_images = false;
+                            progress->completed_send = true;
+                        }
+                        else {
+                            nextImageToSend = 0;
+                        }
                     }
                     else if(progress->completed_load && progress->images_loaded == progress->images_sent) {
                         progress->completed_send = true;

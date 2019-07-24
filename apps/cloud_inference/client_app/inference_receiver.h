@@ -14,6 +14,7 @@ struct runtime_receiver_status {
     int errorCode;
     QString message;
     int loopCount;
+    bool repeat_images;
     bool completed_send;
     bool completed_decode;
     bool completed_load;

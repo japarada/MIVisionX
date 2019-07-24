@@ -117,6 +117,12 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     state->topKValue = topKValue;
     progress.completed = false;
     progress.errorCode = 0;
+    if (loopCount != 1) {
+        progress.repeat_images = true;
+    }
+    else {
+        progress.repeat_images = false;
+    }
     progress.loopCount = loopCount;
     progress.completed_send = false;
     progress.completed_decode = false;
