@@ -19,14 +19,14 @@ class perf_chart : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit perf_chart(QWidget *parent = 0);
+    explicit perf_chart(int mode, QString cpuName, QString gpuName, QWidget *parent = 0);
     ~perf_chart();
 
 private:
     Ui::perf_chart *ui;
     QTimer timer;
-    int mMaxFPS = 0;
-    int mFPSValue = 0;
+    float mMaxFPS = 0;
+    float mFPSValue = 0;
     double mRangeX;
     double mRangeY;
     int mNumGPUs;
@@ -38,8 +38,8 @@ private:
     int mChangedCount = 0;
     int mLastPod = 0;
     int mCurGraph = 0;
-    int mCurMax = 0;
-    int localMaxFPS = 1250;
+    float mCurMaxFPS = 0;
+    float localMaxFPS = 0;
     int mThreshold = 320;
     std::vector<std::tuple<QCPItemText *, double, double, int>> mLabels;
     perf_bar *bar;
@@ -48,9 +48,6 @@ private:
 
 public slots:
     void initGraph();
-    void setCPUName(QString cpuName);
-    void setGPUName(QString gpuName);
-    void setMode(int mode);
     void RealtimeDataSlot();
     void updateFPSValue(float fpsValue);
     void rescaleAxis(double key);
