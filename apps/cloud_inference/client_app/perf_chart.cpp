@@ -1,33 +1,22 @@
 #include "perf_chart.h"
 #include "ui_perf_chart.h"
 
-perf_chart::perf_chart(QWidget *parent) :
+perf_chart::perf_chart(int mode, QString cpuName, QString gpuName, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::perf_chart)
+    ui(new Ui::perf_chart),
+    mMode(mode)
 {
     ui->setupUi(this);
+    ui->cpuName_label->setText(cpuName);
+    ui->gpuName_label->setText(gpuName);
     this->setStyleSheet("background-color: white;");
+    initGraph();
 }
 
 perf_chart::~perf_chart()
 {
     delete bar;
     delete ui;
-}
-
-void perf_chart::setCPUName(QString cpuName)
-{
-   ui->cpuName_label->setText(cpuName);
-}
-
-void perf_chart::setGPUName(QString gpuName)
-{
-   ui->gpuName_label->setText(gpuName);
-}
-
-void perf_chart::setMode(int mode)
-{
-   mMode = mode;
 }
 
 void perf_chart::initGraph()
@@ -93,7 +82,7 @@ void perf_chart::initGraph()
         QVector<double> ticks;
         QVector<QString> labels;
         for (int i=1; i<50; i++) {
-            ticks << localMaxFPS*i;
+            ticks << 1275*i;
             QString str;
             str = QString("%1x").arg(i);
             labels << str;
@@ -140,6 +129,7 @@ void perf_chart::RealtimeDataSlot()
         lastPointKey = key;
 #if defined(ENABLE_KUBERNETES_MODE)
         if (mLastPod != mNumPods) {
+            mCurMaxFPS = 0;
             if (mNumPods == mTempPod) {
                 mChangedCount++;
                 if (mChangedCount == mThreshold) {
@@ -178,7 +168,6 @@ void perf_chart::changePods(double key, double value)
     arrow->end->setCoords(key, value);
 
     mLastPod = mNumPods;
-    mCurMax = 0;
     bar->addBar(mNumPods);
     coloredGraph();
 }
@@ -298,6 +287,11 @@ void perf_chart::updateFPSValue(float fpsValue)
         mFPSValue = fpsValue;
         if (mFPSValue > mMaxFPS) {
             mMaxFPS = mFPSValue;
+        }
+        if (mFPSValue > mCurMaxFPS) {
+            mCurMaxFPS = mFPSValue;
+            mNumPods = mNumPods > 0 ? mNumPods : 1;
+            localMaxFPS = mCurMaxFPS / mNumPods;
         }
         float scaling = fpsValue / localMaxFPS;
         ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 2));

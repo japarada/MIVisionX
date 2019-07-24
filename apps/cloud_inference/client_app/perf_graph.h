@@ -12,13 +12,16 @@ class perf_graph : public QDialog
     Q_OBJECT
 
 public:
-    explicit perf_graph(QWidget *parent = 0);
+    explicit perf_graph(int mode, QWidget *parent = 0);
     ~perf_graph();
 
 private:
     Ui::perf_graph *ui;
     float maxFPS;
-    int localMaxFPS = 1250;
+    float localMaxFPS = 0;
+    float mCurMaxFPS = 0;
+    int mNumPods = 0;
+    int mLastPod = 0;
     int mMode = 0;
 
 public slots:
@@ -32,7 +35,6 @@ public slots:
      void updateElapsedTime(QString elapsedTime);
      void updateFPSValue(float fps);
      void updateTotalImagesValue(int images);
-     void setMode(int mode);
      void hideFPS();
 };
 
