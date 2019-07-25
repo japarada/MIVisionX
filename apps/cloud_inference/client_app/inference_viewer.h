@@ -92,8 +92,8 @@ public:
     // performance results
     QRect perfButtonRect;
     bool perfButtonPressed;
-    perf_graph performance;
-    perf_chart chart;
+    perf_graph * performance;
+    perf_chart * chart;
     QString startTime;
     QElapsedTimer timerElapsed;
     QString elapsedTime;

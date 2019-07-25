@@ -126,11 +126,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     progress.images_sent = 0;
     progress.images_decoded = 0;
     progress.images_loaded = 0;
-    state->chart.setMode(mode);
-    state->chart.initGraph();
-    state->performance.setMode(mode);
+    state->performance = new perf_graph(mode);
+    state->chart = new perf_chart(mode, cpuName, gpuName);
     if (mode == 3) {
-        state->performance.hideFPS();
+        state->performance->hideFPS();
     }
     ui->setupUi(this);
     setMinimumWidth(800);
@@ -152,7 +151,7 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     QString DateTime_test = now.toString("yyyy-MM-dd hh:mm:ss");
     state->startTime.sprintf("%s %s",DateTime_test.toStdString().c_str(),abbr.toStdString().c_str());
     inference_viewer::move(QApplication::desktop()->screen()->rect().center().x() - inference_viewer::width() - 150, QApplication::desktop()->screen()->rect().center().y() - inference_viewer::height() / 2);
-    state->performance.move(QApplication::desktop()->screen()->rect().center().x() - 50, QApplication::desktop()->screen()->rect().center().y() - state->performance.height() / 2);
+    state->performance->move(QApplication::desktop()->screen()->rect().center().x() - 80, QApplication::desktop()->screen()->rect().center().y() - state->performance->height() / 2);
     showPerfResults();
 }
 
@@ -263,8 +262,8 @@ void inference_viewer::terminate()
 			QThread::msleep(100);
 		}
 	}
-    state->performance.closePerformanceView();
-    state->chart.closeChartView();
+    state->performance->closePerformanceView();
+    state->chart->closeChartView();
 	close();
 }
 #else
@@ -302,16 +301,16 @@ void inference_viewer::terminate()
 
 void inference_viewer::showPerfResults()
 {
-    state->performance.setModelName(state->modelName);
-    state->performance.setStartTime(state->startTime);
-    state->performance.setNumGPU(state->GPUs);
+    state->performance->setModelName(state->modelName);
+    state->performance->setStartTime(state->startTime);
+    state->performance->setNumGPU(state->GPUs);
 #if defined(ENABLE_KUBERNETES_MODE)
     // TBD: Set Actual Numbers
-    state->performance.setPods(0);
-    state->performance.setTotalGPU(state->GPUs*1);
+    state->performance->setPods(0);
+    state->performance->setTotalGPU(state->GPUs*1);
 #endif
 
-    state->performance.show();
+    state->performance->show();
 
 }
 
@@ -320,10 +319,8 @@ void inference_viewer::showChartResults()
 #if !defined(ENABLE_KUBERNETES_MODE)
     state->chart.setGPUs(state->GPUs);
 #endif
-    state->chart.setCPUName(state->cpuName);
-    state->chart.setGPUName(state->gpuName);
-    state->chart.move(QApplication::desktop()->screen()->rect().center().x() - 50, QApplication::desktop()->screen()->rect().center().y() - state->performance.height() / 2);
-    state->chart.show();
+    state->chart->move(QApplication::desktop()->screen()->rect().center().x() - 80, QApplication::desktop()->screen()->rect().center().y() - state->performance->height() / 2);
+    state->chart->show();
 }
 
 void inference_viewer::saveResults()
@@ -1243,10 +1240,10 @@ void inference_viewer::paintEvent(QPaintEvent *)
         int E_hours = (E_secs / 3600);
         E_secs = E_secs % 60;
         state->elapsedTime.sprintf("%d:%d:%d",E_hours,E_mins,E_secs);
-        state->performance.updateElapsedTime(state->elapsedTime);
-        state->performance.updateFPSValue(imagesPerSec);
-        state->performance.updateTotalImagesValue(progress.images_received);
-        state->chart.updateFPSValue(imagesPerSec);
+        state->performance->updateElapsedTime(state->elapsedTime);
+        state->performance->updateFPSValue(imagesPerSec);
+        state->performance->updateTotalImagesValue(progress.images_received);
+        state->chart->updateFPSValue(imagesPerSec);
 #if defined(ENABLE_KUBERNETES_MODE)
 		//update nunber of connections to inference serverw
 		int connections = 0;
@@ -1258,11 +1255,11 @@ void inference_viewer::paintEvent(QPaintEvent *)
 				connections++;
 			}
 		}
-		state->performance.setPods(connections);
-        state->performance.setTotalGPU(state->GPUs*connections);
-        state->chart.setTotalGPUs(state->GPUs*connections);
-        state->chart.setPods(connections);
-        state->chart.setGPUs(state->GPUs);
+        state->performance->setPods(connections);
+        state->performance->setTotalGPU(state->GPUs*connections);
+        state->chart->setTotalGPUs(state->GPUs*connections);
+        state->chart->setPods(connections);
+        state->chart->setGPUs(state->GPUs);
 #else
 		state->chart.setGPUs(state->GPUs*connections);
 #endif

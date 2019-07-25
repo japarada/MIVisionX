@@ -18,7 +18,7 @@ public:
 
 private:
     Ui::inference_panel *ui;
-    perf_graph display_panel;
+    perf_graph * display_panel;
 
 public slots:
      void viewPerformanceGraph();
