@@ -409,11 +409,16 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
 
 void inference_control::saveConfig()
 {
-    bool repeat_images = false;
     int maxDataSize = editMaxDataSize->text().toInt();
     if(maxDataSize < 0) {
-        repeat_images = true;
         maxDataSize = abs(maxDataSize);
+    }
+    int loopCount;
+    if (comboLoopCount->currentText() == "Repeat until abort"){
+        loopCount = -1;
+    }
+    else {
+        loopCount = comboLoopCount->currentText().toInt();
     }
     bool sendScaledImages = false;
     if(checkScaledImages && checkScaledImages->checkState())
@@ -440,7 +445,7 @@ void inference_control::saveConfig()
         fileOutput << editImageListFile->text() << endl;
         QString text;
         fileOutput << ((maxDataSize > 0) ? text.sprintf("%d", maxDataSize) : "") << endl;
-        fileOutput << (repeat_images ? 1 : 0) << endl;
+        fileOutput << loopCount << endl;
         fileOutput << (sendScaledImages ? 1 : 0) << endl;
     }
     fileObj.close();
@@ -470,12 +475,7 @@ void inference_control::loadConfig()
             editImageFolder->setText(fileInput.readLine());
             editImageListFile->setText(fileInput.readLine());
             editMaxDataSize->setText(fileInput.readLine());
-            bool repeat_images = false;
-            if(fileInput.readLine() == "1")
-                repeat_images = true;
-            else if(repeat_images && editMaxDataSize->text().length() > 0 && editMaxDataSize->text()[0] != '-') {
-                editMaxDataSize->setText("-" + editMaxDataSize->text());
-            }
+            int loopCount = fileInput.readLine().toInt();
             bool sendScaledImages = true;
             if(fileInput.readLine() == "0")
                 sendScaledImages = false;
@@ -1045,7 +1045,6 @@ void inference_control::runInference()
     QString gpuName = comboGPUName->currentText();
     int mode = comboMode->currentText().toInt();
     int loopCount;
-    printf("hi\n");
     if (comboLoopCount->currentText() == "Repeat until abort") {
         loopCount = -1;
     }
@@ -1057,12 +1056,8 @@ void inference_control::runInference()
     }
     int dimInput[3] = { editDimW->text().toInt(), editDimH->text().toInt(), 3 };
     int dimOutput[3] = { editOutDimW->text().toInt(), editOutDimH->text().toInt(), editOutDimC->text().toInt() };
-    bool repeat_images = false;
-    if(checkRepeatImages && checkRepeatImages->checkState())
-        repeat_images = true;
     int maxDataSize = editMaxDataSize->text().toInt();
     if(maxDataSize < 0) {
-        repeat_images = true;
         if(maxDataSize == -1)
             maxDataSize = 0;
         else

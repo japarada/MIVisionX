@@ -117,13 +117,8 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     state->topKValue = topKValue;
     progress.completed = false;
     progress.errorCode = 0;
-    if (loopCount != 1) {
-        progress.repeat_images = true;
-    }
-    else {
-        progress.repeat_images = false;
-    }
     progress.loopCount = loopCount;
+    progress.totalLoop = loopCount;
     progress.completed_send = false;
     progress.completed_decode = false;
     progress.completed_load = false;
@@ -1128,7 +1123,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         painter.setPen(Qt::NoPen);
         painter.setBrush(statusBarColorDecode);
         painter.drawRect(state->statusBarRect);
-        if(progress.repeat_images) {
+        if(progress.loopCount > 1) {
             QString text;
             if (state->mode == 3) {
                 text.sprintf("Cycling through %d images from the image list", state->imagePixmapCount);
@@ -1188,7 +1183,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             text.sprintf(" decoded[%d/%d]", state->imagePixmapCount, state->imageLoadCount);
             statusText += text;
         }
-        if(!progress.repeat_images) {
+        if(progress.loopCount > 1) {
             QString text;
             if(progress.images_sent > 0) {
                 text.sprintf(" sent[%d/%d]", progress.images_sent, state->imagePixmapCount);
@@ -1326,7 +1321,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             int h = ICON_SIZE / 4;
             bool enableImageDraw = false;
             bool enableZoomInEffect = true;
-            if(!progress.repeat_images)
+            if(progress.loopCount > 1)
                 enableZoomInEffect = false;
             else if(imageCount < (numCols * numRows * 3 / 4))
                 enableZoomInEffect = false;
