@@ -215,11 +215,6 @@ void inference_receiver::run()
                         perfImageCount++;
                         progress->images_received++;
                     }
-                    printf("1progress%d\n", progress->loopCount);
-                    printf("2progress%d\n", progress->totalLoop);
-                    printf("3progress%d\n", progress->images_loaded);
-                    printf("4progress%d\n", progress->images_received);
-                    printf("5progress%d\n", progress->completed_load);
                     if(progress->loopCount == 1 && progress->completed_load &&
                         progress->images_loaded*progress->totalLoop <= progress->images_received)
                     {

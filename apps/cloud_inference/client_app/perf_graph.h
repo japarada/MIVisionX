@@ -18,7 +18,7 @@ public:
 private:
     Ui::perf_graph *ui;
     float maxFPS;
-    float localMaxFPS = 0;
+    float localMaxFPS = 1;
     float mCurMaxFPS = 0;
     int mNumPods = 0;
     int mLastPod = 0;
