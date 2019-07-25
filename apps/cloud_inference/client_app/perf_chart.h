@@ -38,13 +38,8 @@ private:
     int mChangedCount = 0;
     int mLastPod = 0;
     int mCurGraph = 0;
-<<<<<<< HEAD
-    int mCurMax = 0;
-    int localMaxFPS = 1275;
-=======
     float mCurMaxFPS = 0;
     float localMaxFPS = 0;
->>>>>>> japarada/master
     int mThreshold = 320;
     std::vector<std::tuple<QCPItemText *, double, double, int>> mLabels;
     perf_bar *bar;

@@ -383,20 +383,6 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
      </property>
     </widget>
    </item>
-<<<<<<< HEAD
-   <item row="1" column="0">
-    <spacer name="horizontalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-=======
    <item row="0" column="0" colspan="4">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="sizeConstraint">
@@ -495,7 +481,6 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
       </widget>
      </item>
     </layout>
->>>>>>> japarada/master
    </item>
   </layout>
  </widget>
