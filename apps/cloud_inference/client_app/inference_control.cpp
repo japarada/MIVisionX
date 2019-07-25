@@ -302,7 +302,7 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     mode->setAlignment(Qt::AlignLeft);
     controlLayout->addWidget(mode, row, 3, 1, 1);
     comboMode = new QComboBox();
-    comboMode->addItems({"1", "2", "3"});
+    comboMode->addItems({"1", "2", "3", "4"});
     comboMode->setCurrentText("3");
     controlLayout->addWidget(comboMode, row, 4, 1, 1);
     row++;
