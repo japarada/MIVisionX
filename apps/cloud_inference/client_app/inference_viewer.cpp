@@ -128,6 +128,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     progress.images_loaded = 0;
     state->performance = new perf_graph(mode);
     state->chart = new perf_chart(mode, cpuName, gpuName);
+    if (mode == 4) {
+        state->panel = new inference_panel(modelName, cpuName, gpuName, loopCount * maxImageDataSize);
+        state->panel->move(QApplication::desktop()->screen()->rect().center().x() - 80, QApplication::desktop()->screen()->rect().center().y() - state->panel->height() / 2);
+    }
     if (mode == 3) {
         state->performance->hideFPS();
     }
@@ -301,17 +305,20 @@ void inference_viewer::terminate()
 
 void inference_viewer::showPerfResults()
 {
-    state->performance->setModelName(state->modelName);
-    state->performance->setStartTime(state->startTime);
-    state->performance->setNumGPU(state->GPUs);
-#if defined(ENABLE_KUBERNETES_MODE)
-    // TBD: Set Actual Numbers
-    state->performance->setPods(0);
-    state->performance->setTotalGPU(state->GPUs*1);
-#endif
-
-    state->performance->show();
-
+    if (state->mode == 4) {
+        state->panel->show();
+    }
+    else {
+        state->performance->setModelName(state->modelName);
+        state->performance->setStartTime(state->startTime);
+        state->performance->setNumGPU(state->GPUs);
+    #if defined(ENABLE_KUBERNETES_MODE)
+        // TBD: Set Actual Numbers
+        state->performance->setPods(0);
+        state->performance->setTotalGPU(state->GPUs*1);
+    #endif
+        state->performance->show();
+    }
 }
 
 void inference_viewer::showChartResults()

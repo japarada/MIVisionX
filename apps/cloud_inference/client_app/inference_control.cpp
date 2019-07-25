@@ -1070,9 +1070,6 @@ void inference_control::runInference()
     if(enableTopK)
         topKValue = ( comboTopKResult->currentIndex() + 1 );
 
-    inference_panel *display_panel = new inference_panel;
-    display_panel->setWindowIcon(QIcon(":/images/vega_icon_150.png"));
-    //display_panel->show();
     inference_viewer * viewer = new inference_viewer(
                 editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName, mode,
                 dataLabels, dataHierarchy, editImageListFile->text(), editImageFolder->text(),
