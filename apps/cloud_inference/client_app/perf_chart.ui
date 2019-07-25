@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1006</width>
-    <height>953</height>
+    <height>1035</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,7 +70,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/images/EPYC.png</pixmap>
+         <pixmap resource="resources.qrc">:/images/EPYC-blue.png</pixmap>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -246,7 +246,7 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>90</width>
                 <height>16777215</height>
                </size>
               </property>

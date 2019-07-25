@@ -16,5 +16,6 @@
         <file>images/AMD.png</file>
         <file>images/EPYC.png</file>
         <file>images/AMD Radeon Instinct.png</file>
+        <file>images/EPYC-blue.png</file>
     </qresource>
 </RCC>
