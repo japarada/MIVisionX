@@ -88,6 +88,7 @@ private:
     QComboBox * comboMode;
     QComboBox * comboGPUName;
     QComboBox * comboCPUName;
+    QComboBox * comboLoopCount;
     QLineEdit * editModelName;
     QPushButton * buttonModelFile1;
     QPushButton * buttonModelFile2;
