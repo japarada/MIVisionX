@@ -244,6 +244,12 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>90</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>90</width>
