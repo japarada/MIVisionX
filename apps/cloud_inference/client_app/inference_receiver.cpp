@@ -3,7 +3,7 @@
 #include <iostream>
 #include <QThread>
 
-#if defined(ENABLE_KUBERNETES_MODE)	
+#if defined(ENABLE_KUBERNETES_MODE)
 #define ZERO_PADDING_LENGTH 256
 #endif
 
@@ -41,7 +41,7 @@ inference_receiver::inference_receiver(
     topKValue = topKValue_;
     shadowFileBuffer = shadowFileBuffer_;
 #if defined(ENABLE_KUBERNETES_MODE)
-	state_ = IDLE;
+    state_ = IDLE;
 #endif
 }
 
@@ -74,7 +74,7 @@ void inference_receiver::getReceivedList(QVector<int>& indexQ, QVector<int>& lab
 #if defined(ENABLE_KUBERNETES_MODE)
 int inference_receiver::state()
 {
-	return state_;
+    return state_;
 }
 #endif
 
@@ -87,20 +87,20 @@ void inference_receiver::run()
 
     progress->images_sent = 0;
 
- #if defined(ENABLE_KUBERNETES_MODE)   
+ #if defined(ENABLE_KUBERNETES_MODE)
     //do not reset images received as other running threads might had received images already
-	//progress->images_received = 0;
+    //progress->images_received = 0;
  #else
      progress->images_received = 0;
  #endif
- 
+
     progress->completed_send = false;
     progress->completed = false;
 
     TcpConnection * connection = new TcpConnection(serverHost, serverPort, 3000, this);
     if(connection->connected()) {
  #if defined(ENABLE_KUBERNETES_MODE)
-		state_ = CONNECTED;
+        state_ = CONNECTED;
  #endif
         int nextImageToSend = 0;
         InfComCommand cmd;
@@ -141,9 +141,9 @@ void inference_receiver::run()
             else if(cmd.command == INFCOM_CMD_SEND_IMAGES) {
 
 #if defined(ENABLE_KUBERNETES_MODE)
-				state_ = SENDING;
-				//reset complete flag as other thread could have set it to complete
-				progress->completed = false;
+                state_ = SENDING;
+                //reset complete flag as other thread could have set it to complete
+                progress->completed = false;
 #else
                 progress->message = "";
 #endif
@@ -162,10 +162,10 @@ void inference_receiver::run()
                     // send the image at nextImageToSend
                     if (sendFileName) {
                         QByteArray fileNameBuffer;
-						fileNameBuffer.append((*shadowFileBuffer)[nextImageToSend]);
-#if defined(ENABLE_KUBERNETES_MODE)						
-						for (int i = 0; i < ZERO_PADDING_LENGTH; i++)
-							fileNameBuffer.append('\0');
+                        fileNameBuffer.append((*shadowFileBuffer)[nextImageToSend]);
+#if defined(ENABLE_KUBERNETES_MODE)
+                        for (int i = 0; i < ZERO_PADDING_LENGTH; i++)
+                            fileNameBuffer.append('\0');
 #endif
                         if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, progress->message, abortRequested)) {
                             failed = true;
@@ -216,7 +216,7 @@ void inference_receiver::run()
                         progress->images_received++;
                     }
                     if(progress->loopCount == 1 && progress->completed_load &&
-                        progress->images_loaded*progress->totalLoop == progress->images_received)
+                        progress->images_loaded*progress->totalLoop <= progress->images_received)
                     {
                         abort();
                     }
@@ -266,7 +266,7 @@ void inference_receiver::run()
             }
             else {
                 progress->errorCode = -1;
-#if !defined(ENABLE_KUBERNETES_MODE)	
+#if !defined(ENABLE_KUBERNETES_MODE)
                 progress->message.sprintf("ERROR: got invalid command 0x%08x", cmd.command);
 #endif
                 break;
@@ -276,7 +276,7 @@ void inference_receiver::run()
     }
     else {
         progress->errorCode = -1;
-#if !defined(ENABLE_KUBERNETES_MODE)	
+#if !defined(ENABLE_KUBERNETES_MODE)
         progress->message.sprintf("ERROR: Unable to connect to %s:%d", serverHost.toStdString().c_str(), serverPort);
 #endif
     }
@@ -290,8 +290,8 @@ void inference_receiver::run()
     if(progress->errorCode) {
         qDebug("inference_receiver::run() terminated: errorCode=%d", progress->errorCode);
     }
-#if defined(ENABLE_KUBERNETES_MODE)	
-	state_ = IDLE;
+#if defined(ENABLE_KUBERNETES_MODE)
+    state_ = IDLE;
 #endif
 }
 

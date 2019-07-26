@@ -302,8 +302,10 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     mode->setAlignment(Qt::AlignLeft);
     controlLayout->addWidget(mode, row, 3, 1, 1);
     comboMode = new QComboBox();
-    comboMode->addItems({"1", "2", "3"});
+    comboMode->addItems({"1", "2", "3", "4"});
     comboMode->setCurrentText("3");
+    connect(comboMode, SIGNAL(currentIndexChanged(int)), this, SLOT(modeChanged()));
+    connect(comboMode, SIGNAL(currentIndexChanged(QString)), this, SLOT(modeChanged()));
     controlLayout->addWidget(comboMode, row, 4, 1, 1);
     row++;
     QLabel * labelGPUName = new QLabel("Server GPU:");
@@ -1070,9 +1072,6 @@ void inference_control::runInference()
     if(enableTopK)
         topKValue = ( comboTopKResult->currentIndex() + 1 );
 
-    inference_panel *display_panel = new inference_panel;
-    display_panel->setWindowIcon(QIcon(":/images/vega_icon_150.png"));
-    //display_panel->show();
     inference_viewer * viewer = new inference_viewer(
                 editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName, mode,
                 dataLabels, dataHierarchy, editImageListFile->text(), editImageFolder->text(),
@@ -1119,5 +1118,17 @@ void inference_control::shadowFolderEnable(bool shadowEnable)
         editShadowFolderAddr->setVisible(false);
         buttonShadowFolder->setVisible(false);
         sendFileName = 0;
+    }
+}
+
+void inference_control::modeChanged()
+{
+    if (comboMode->currentText().toInt() == 4) {
+        comboLoopCount->setCurrentText("1");
+        comboLoopCount->setItemText(4, "20");
+    }
+    else {
+        comboLoopCount->setCurrentText("Repeat until abort");
+        comboLoopCount->setItemText(4, "Repeat until abort");
     }
 }

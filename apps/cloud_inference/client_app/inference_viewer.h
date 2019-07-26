@@ -2,6 +2,7 @@
 #define INFERENCE_VIEWER_H
 
 #include "inference_receiver.h"
+#include "inference_panel.h"
 #include "perf_graph.h"
 #include "perf_chart.h"
 #include <QWidget>
@@ -94,6 +95,7 @@ public:
     bool perfButtonPressed;
     perf_graph * performance;
     perf_chart * chart;
+    inference_panel * panel;
     QString startTime;
     QElapsedTimer timerElapsed;
     QString elapsedTime;
