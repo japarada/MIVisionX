@@ -1221,6 +1221,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
     int imageCount = state->resultImageIndex.size();
     int imageRows = imageCount / numCols;
     int imageCols = imageCount % numCols;
+    int numPods = 0;
     if(state->resultImageIndex.size() > 0) {
         while(imageRows >= numRows) {
             state->resultImageIndex.erase(state->resultImageIndex.begin(), state->resultImageIndex.begin() + 4 * numCols);
@@ -1252,7 +1253,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance->updateTotalImagesValue(progress.images_received);
         state->chart->updateFPSValue(imagesPerSec);
 #if defined(ENABLE_KUBERNETES_MODE)
-		//update nunber of connections to inference serverw
+        //update number of connections to inference server
 		int connections = 0;
 		for (int i = 0; i < state->receiver_workers.size(); i++)
 		{
@@ -1262,6 +1263,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
 				connections++;
 			}
 		}
+        numPods = connections;
         state->performance->setPods(connections);
         state->performance->setTotalGPU(state->GPUs*connections);
         state->chart->setTotalGPUs(state->GPUs*connections);
@@ -1329,11 +1331,13 @@ void inference_viewer::paintEvent(QPaintEvent *)
                 enableZoomInEffect = false;
             else if(imageCount < (numCols * numRows * 3 / 4))
                 enableZoomInEffect = false;
+            if (numPods == 24)
+                enableZoomInEffect = false;
             if(enableZoomInEffect && (row / 2) < (numRows / 4)) {
                 if((row % 2) == 0 && (col % 2) == 0) {
                     w += ICON_STRIDE / 4;
                     h += ICON_STRIDE / 4;
-                    if ((row / 4) < (numRows / 16)) {
+                    if (numPods < 16 && (row / 4) < (numRows / 16)) {
                         if((row % 4) == 0 && (col % 4) == 0) {
                             w += ICON_STRIDE / 2;
                             h += ICON_STRIDE / 2;
