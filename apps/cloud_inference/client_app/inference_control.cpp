@@ -385,12 +385,15 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
     checkScaledImages = new QCheckBox("Send Resized Images");
     checkScaledImages->setChecked(true);
     controlLayout->addWidget(checkScaledImages, row, 2, 1, 1);
-    checkRepeatImages = nullptr;
-    if(operationMode) {
-        checkRepeatImages = new QCheckBox("Repeat Until Abort");
-        checkRepeatImages->setChecked(true);
-        controlLayout->addWidget(checkRepeatImages, row, 3, 1, 1);
-    }
+    row++;
+    QLabel * labelLoopCount = new QLabel("Loop Count:");
+    labelLoopCount->setStyleSheet("font-weight: bold; font-style: italic; font-size: 15pt;");
+    labelLoopCount->setAlignment(Qt::AlignLeft);
+    controlLayout->addWidget(labelLoopCount, row, 0, 1, 1);
+    comboLoopCount = new QComboBox();
+    comboLoopCount->addItems({ "1", "2", "5", "10", "Repeat until abort" });
+    comboLoopCount->setCurrentText("Repeat until abort");
+    controlLayout->addWidget(comboLoopCount, row, 1, 1, 1);
     row++;
 
     setLayout(controlLayout);
@@ -407,13 +410,16 @@ inference_control::inference_control(int operationMode_, QWidget *parent)
 
 void inference_control::saveConfig()
 {
-    bool repeat_images = false;
-    if(checkRepeatImages && checkRepeatImages->checkState())
-        repeat_images = true;
     int maxDataSize = editMaxDataSize->text().toInt();
     if(maxDataSize < 0) {
-        repeat_images = true;
         maxDataSize = abs(maxDataSize);
+    }
+    int loopCount;
+    if (comboLoopCount->currentText() == "Repeat until abort"){
+        loopCount = -1;
+    }
+    else {
+        loopCount = comboLoopCount->currentText().toInt();
     }
     bool sendScaledImages = false;
     if(checkScaledImages && checkScaledImages->checkState())
@@ -440,7 +446,7 @@ void inference_control::saveConfig()
         fileOutput << editImageListFile->text() << endl;
         QString text;
         fileOutput << ((maxDataSize > 0) ? text.sprintf("%d", maxDataSize) : "") << endl;
-        fileOutput << (repeat_images ? 1 : 0) << endl;
+        fileOutput << loopCount << endl;
         fileOutput << (sendScaledImages ? 1 : 0) << endl;
     }
     fileObj.close();
@@ -470,15 +476,7 @@ void inference_control::loadConfig()
             editImageFolder->setText(fileInput.readLine());
             editImageListFile->setText(fileInput.readLine());
             editMaxDataSize->setText(fileInput.readLine());
-            bool repeat_images = false;
-            if(fileInput.readLine() == "1")
-                repeat_images = true;
-            if(checkRepeatImages) {
-                checkRepeatImages->setChecked(repeat_images);
-            }
-            else if(repeat_images && editMaxDataSize->text().length() > 0 && editMaxDataSize->text()[0] != '-') {
-                editMaxDataSize->setText("-" + editMaxDataSize->text());
-            }
+            int loopCount = fileInput.readLine().toInt();
             bool sendScaledImages = true;
             if(fileInput.readLine() == "0")
                 sendScaledImages = false;
@@ -1047,18 +1045,20 @@ void inference_control::runInference()
     QString cpuName = comboCPUName->currentText();
     QString gpuName = comboGPUName->currentText();
     int mode = comboMode->currentText().toInt();
-
+    int loopCount;
+    if (comboLoopCount->currentText() == "Repeat until abort") {
+        loopCount = -1;
+    }
+    else {
+        loopCount = comboLoopCount->currentText().toInt();
+    }
     if(comboModelSelect->currentIndex() < numModelTypes) {
         modelName = compiler_status.message;
     }
     int dimInput[3] = { editDimW->text().toInt(), editDimH->text().toInt(), 3 };
     int dimOutput[3] = { editOutDimW->text().toInt(), editOutDimH->text().toInt(), editOutDimC->text().toInt() };
-    bool repeat_images = false;
-    if(checkRepeatImages && checkRepeatImages->checkState())
-        repeat_images = true;
     int maxDataSize = editMaxDataSize->text().toInt();
     if(maxDataSize < 0) {
-        repeat_images = true;
         if(maxDataSize == -1)
             maxDataSize = 0;
         else
@@ -1076,7 +1076,7 @@ void inference_control::runInference()
     inference_viewer * viewer = new inference_viewer(
                 editServerHost->text(), editServerPort->text().toInt(), modelName, cpuName, gpuName, mode,
                 dataLabels, dataHierarchy, editImageListFile->text(), editImageFolder->text(),
-                dimInput, editGPUs->text().toInt(), dimOutput, maxDataSize, repeat_images, sendScaledImages, sendFileName, topKValue);
+                dimInput, editGPUs->text().toInt(), dimOutput, maxDataSize, loopCount, sendScaledImages, sendFileName, topKValue);
     viewer->setWindowIcon(QIcon(":/images/vega_icon_150.png"));
     viewer->show();
     close();

@@ -291,7 +291,7 @@ void perf_chart::updateFPSValue(float fpsValue)
         if (mFPSValue > mCurMaxFPS) {
             mCurMaxFPS = mFPSValue;
             mNumPods = mNumPods > 0 ? mNumPods : 1;
-            localMaxFPS = mCurMaxFPS / mNumPods;
+            localMaxFPS = (mCurMaxFPS / mNumPods) > 1275 ? (mCurMaxFPS / mNumPods) : 1275;
         }
         float scaling = fpsValue / localMaxFPS;
         ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 2));

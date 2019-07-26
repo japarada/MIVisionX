@@ -7,11 +7,11 @@
 #define ZERO_PADDING_LENGTH 256
 #endif
 
-bool inference_receiver::abortRequsted = false;
+bool inference_receiver::abortRequested = false;
 
 void inference_receiver::abort()
 {
-    abortRequsted = true;
+    abortRequested = true;
 }
 
 inference_receiver::inference_receiver(
@@ -104,9 +104,9 @@ void inference_receiver::run()
  #endif
         int nextImageToSend = 0;
         InfComCommand cmd;
-        while(!abortRequsted && connection->recvCmd(cmd)) {
+        while(!abortRequested && connection->recvCmd(cmd)) {
         {
-            if(abortRequsted)
+            if(abortRequested)
                 break;
             if(cmd.magic != INFCOM_MAGIC) {
                 progress->errorCode = -1;
@@ -167,12 +167,12 @@ void inference_receiver::run()
 						for (int i = 0; i < ZERO_PADDING_LENGTH; i++)
 							fileNameBuffer.append('\0');
 #endif
-                        if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, progress->message, abortRequsted)) {
+                        if(!connection->sendImage(nextImageToSend, fileNameBuffer, progress->errorCode, progress->message, abortRequested)) {
                             failed = true;
                             break;
                         }
                     }
-                    else if(!connection->sendImage(nextImageToSend, (*imageBuffer)[nextImageToSend], progress->errorCode, progress->message, abortRequsted)) {
+                    else if(!connection->sendImage(nextImageToSend, (*imageBuffer)[nextImageToSend], progress->errorCode, progress->message, abortRequested)) {
                         failed = true;
                         break;
                     }
@@ -183,11 +183,15 @@ void inference_receiver::run()
                 if(failed)
                     break;
                 if(nextImageToSend >= imageCount) {
-                    if(progress->repeat_images) {
+                    if(progress->loopCount > 1) {
                         nextImageToSend = 0;
+                        progress->loopCount--;
                     }
-                    else if(progress->completed_load && progress->images_loaded == progress->images_sent) {
+                    else if (progress->loopCount == 1) {
                         progress->completed_send = true;
+                    }
+                    else if(progress->loopCount == -1) {
+                        nextImageToSend = 0;
                     }
                 }
             }
@@ -211,8 +215,8 @@ void inference_receiver::run()
                         perfImageCount++;
                         progress->images_received++;
                     }
-                    if(!progress->repeat_images && progress->completed_load &&
-                        progress->images_loaded == progress->images_received)
+                    if(progress->loopCount == 1 && progress->completed_load &&
+                        progress->images_loaded*progress->totalLoop == progress->images_received)
                     {
                         abort();
                     }
@@ -253,8 +257,8 @@ void inference_receiver::run()
                         labelVec.clear();
                         probVec.clear();
                     }
-                    if(!progress->repeat_images && progress->completed_load &&
-                        progress->images_loaded == progress->images_received)
+                    if(progress->loopCount == 1 && progress->completed_load &&
+                        progress->images_loaded*progress->totalLoop == progress->images_received)
                     {
                         abort();
                     }
@@ -277,7 +281,7 @@ void inference_receiver::run()
 #endif
     }
 
-    if(abortRequsted)
+    if(abortRequested)
         progress->message += "[stopped]";
     connection->close();
     delete connection;

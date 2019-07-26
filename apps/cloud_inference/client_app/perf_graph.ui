@@ -363,19 +363,6 @@ font: 75 28pt &quot;Ubuntu&quot;;</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <spacer name="horizontalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>242</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="7" column="1">
     <widget class="QLabel" name="ElapsedTimeName_label">
      <property name="maximumSize">
@@ -486,7 +473,7 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="resources.qrc">:/images/EPYC.png</pixmap>
+        <pixmap resource="resources.qrc">:/images/EPYC-blue.png</pixmap>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

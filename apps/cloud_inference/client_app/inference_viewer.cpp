@@ -83,7 +83,7 @@ inference_state::inference_state()
 inference_viewer::inference_viewer(QString serverHost, int serverPort, QString modelName, QString cpuName, QString gpuName, int mode,
         QVector<QString> * dataLabels, QVector<QString> * dataHierarchy, QString dataFilename, QString dataFolder,
         int dimInput[3], int GPUs, int dimOutput[3], int maxImageDataSize,
-        bool repeat_images, bool sendScaledImages, int sendFileName_, int topKValue,
+        int loopCount, bool sendScaledImages, int sendFileName_, int topKValue,
         QWidget *parent) :
     QWidget(parent),
     ui(new Ui::inference_viewer),
@@ -117,7 +117,8 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     state->topKValue = topKValue;
     progress.completed = false;
     progress.errorCode = 0;
-    progress.repeat_images = repeat_images;
+    progress.loopCount = loopCount;
+    progress.totalLoop = loopCount;
     progress.completed_send = false;
     progress.completed_decode = false;
     progress.completed_load = false;
@@ -1119,7 +1120,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         painter.setPen(Qt::NoPen);
         painter.setBrush(statusBarColorDecode);
         painter.drawRect(state->statusBarRect);
-        if(progress.repeat_images) {
+        if(progress.loopCount > 1) {
             QString text;
             if (state->mode == 3) {
                 text.sprintf("Cycling through %d images from the image list", state->imagePixmapCount);
@@ -1179,7 +1180,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             text.sprintf(" decoded[%d/%d]", state->imagePixmapCount, state->imageLoadCount);
             statusText += text;
         }
-        if(!progress.repeat_images) {
+        if(progress.loopCount > 1) {
             QString text;
             if(progress.images_sent > 0) {
                 text.sprintf(" sent[%d/%d]", progress.images_sent, state->imagePixmapCount);
@@ -1213,6 +1214,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
     int imageCount = state->resultImageIndex.size();
     int imageRows = imageCount / numCols;
     int imageCols = imageCount % numCols;
+    int numPods = 0;
     if(state->resultImageIndex.size() > 0) {
         while(imageRows >= numRows) {
             state->resultImageIndex.erase(state->resultImageIndex.begin(), state->resultImageIndex.begin() + 4 * numCols);
@@ -1244,7 +1246,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance->updateTotalImagesValue(progress.images_received);
         state->chart->updateFPSValue(imagesPerSec);
 #if defined(ENABLE_KUBERNETES_MODE)
-		//update nunber of connections to inference serverw
+        //update number of connections to inference server
 		int connections = 0;
 		for (int i = 0; i < state->receiver_workers.size(); i++)
 		{
@@ -1254,6 +1256,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
 				connections++;
 			}
 		}
+        numPods = connections;
         state->performance->setPods(connections);
         state->performance->setTotalGPU(state->GPUs*connections);
         state->chart->setTotalGPUs(state->GPUs*connections);
@@ -1317,15 +1320,17 @@ void inference_viewer::paintEvent(QPaintEvent *)
             int h = ICON_SIZE / 4;
             bool enableImageDraw = false;
             bool enableZoomInEffect = true;
-            if(!progress.repeat_images)
+            if(progress.loopCount > 1)
                 enableZoomInEffect = false;
             else if(imageCount < (numCols * numRows * 3 / 4))
+                enableZoomInEffect = false;
+            if (numPods == 24)
                 enableZoomInEffect = false;
             if(enableZoomInEffect && (row / 2) < (numRows / 4)) {
                 if((row % 2) == 0 && (col % 2) == 0) {
                     w += ICON_STRIDE / 4;
                     h += ICON_STRIDE / 4;
-                    if ((row / 4) < (numRows / 16)) {
+                    if (numPods < 16 && (row / 4) < (numRows / 16)) {
                         if((row % 4) == 0 && (col % 4) == 0) {
                             w += ICON_STRIDE / 2;
                             h += ICON_STRIDE / 2;
