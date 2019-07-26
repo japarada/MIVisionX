@@ -2,6 +2,8 @@
 #define INFERENCE_PANEL_H
 
 #include <QDialog>
+#include <QElapsedTimer>
+#include <QTimer>
 #include "perf_graph.h"
 
 namespace Ui {
@@ -18,10 +20,15 @@ public:
 
 private:
     Ui::inference_panel *ui;
-
+    QTimer *timer;
+    QElapsedTimer *elapsedTimer;
 public slots:
      void closePanelView();
      void setValue(int imageCount);
+     void setMaximum(int maximum);
+     void startTimer();
+     void showTimer();
+     void stopTimer();
 };
 
 #endif // INFERENCE_PANEL_H

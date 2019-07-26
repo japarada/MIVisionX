@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
+    <width>978</width>
     <height>600</height>
    </rect>
   </property>
@@ -16,64 +16,22 @@
   <property name="styleSheet">
    <string notr="true">background-color: rgb(226, 226, 226);</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="2" column="4" colspan="8">
-    <widget class="QLabel" name="modelName_label">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(170, 0, 0);
-font: 75 28pt &quot;Ubuntu&quot;;</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2" colspan="2">
-    <widget class="QLabel" name="NGPU_label">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="11" column="0" colspan="2">
+    <widget class="QLabel" name="ElapsedTime_label">
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
 font: 75 28pt &quot;Ubuntu&quot;;</string>
      </property>
      <property name="text">
-      <string>GPU :</string>
+      <string>Elapse Time:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="7" column="11">
-    <widget class="Line" name="line_5">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="3">
-    <widget class="QLCDNumber" name="lcdNumber_0">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <property name="digitCount">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1" rowspan="2" colspan="11">
-    <widget class="Line" name="line">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);
-</string>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="6" colspan="6">
+   <item row="8" column="2">
     <widget class="QLabel" name="GPUName_label">
      <property name="styleSheet">
       <string notr="true">color: rgb(170, 0, 0);
@@ -84,8 +42,141 @@ font: 75 20pt &quot;Ubuntu&quot;;</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="3" colspan="7">
+   <item row="11" column="2" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLCDNumber" name="mLCDNumber">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="min_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>min</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLCDNumber" name="sLCDNumber">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="sec_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>sec</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLCDNumber" name="msLCDNumber">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="msec_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>msec</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="1" colspan="2">
     <widget class="QLabel" name="header_label">
+     <property name="font">
+      <font>
+       <family>Ubuntu</family>
+       <pointsize>38</pointsize>
+       <weight>9</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
 font: 75 38pt &quot;Ubuntu&quot;;</string>
@@ -98,56 +189,84 @@ font: 75 38pt &quot;Ubuntu&quot;;</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="4">
-    <widget class="QLCDNumber" name="lcdNumber_1">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="digitCount">
-      <number>1</number>
-     </property>
-     <property name="intValue" stdset="0">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2" colspan="2">
-    <widget class="QLabel" name="Model_label">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);
-font: 75 28pt &quot;Ubuntu&quot;;</string>
-     </property>
-     <property name="text">
-      <string>Model :</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="4" colspan="5">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="close_pushButton">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(0, 0, 0);
-color: rgb(255, 255, 255);</string>
+   <item row="0" column="0" colspan="4">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <property name="text">
-        <string>Close</string>
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/images/AMD Radeon Instinct.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/images/MIVisionX.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/images/EPYC-blue.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="7" column="0">
-    <widget class="Line" name="line_2">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
+   <item row="2" column="1">
+    <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-    </widget>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
-   <item row="5" column="1" colspan="11">
+   <item row="9" column="2" colspan="2">
     <widget class="QProgressBar" name="progressBar">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -166,17 +285,7 @@ color: rgb(255, 255, 255);</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="5" rowspan="2">
-    <widget class="Line" name="line_3">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="6" colspan="6">
+   <item row="7" column="2">
     <widget class="QLabel" name="CPUName_label">
      <property name="styleSheet">
       <string notr="true">color: rgb(170, 0, 0);
@@ -187,54 +296,8 @@ font: 75 20pt &quot;Ubuntu&quot;;</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="6">
-    <widget class="QLCDNumber" name="lcdNumber_2">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="digitCount">
-      <number>1</number>
-     </property>
-     <property name="intValue" stdset="0">
-      <number>2</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="3">
-    <widget class="QLabel" name="logo_label_2">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/images/AMD_NEW_logo_150.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="10" colspan="2">
-    <widget class="QLCDNumber" name="lcdNumber_3">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="digitCount">
-      <number>1</number>
-     </property>
-     <property name="intValue" stdset="0">
-      <number>3</number>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="7" rowspan="2">
-    <widget class="Line" name="line_4">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="9" colspan="3">
-    <widget class="QLabel" name="elapsedTime_label">
+   <item row="6" column="2">
+    <widget class="QLabel" name="modelName_label">
      <property name="styleSheet">
       <string notr="true">color: rgb(170, 0, 0);
 font: 75 28pt &quot;Ubuntu&quot;;</string>
@@ -244,19 +307,84 @@ font: 75 28pt &quot;Ubuntu&quot;;</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="2" colspan="2">
-    <widget class="QLabel" name="NCPU_label">
+   <item row="9" column="1">
+    <widget class="QLabel" name="Progress_label">
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);
 font: 75 28pt &quot;Ubuntu&quot;;</string>
      </property>
      <property name="text">
-      <string>CPU :</string>
+      <string>Progress:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLabel" name="GPU_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>GPU:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="CPU_label">
+     <property name="font">
+      <font>
+       <family>Ubuntu</family>
+       <pointsize>28</pointsize>
+       <weight>9</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>CPU:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="Model_label">
+     <property name="font">
+      <font>
+       <family>Ubuntu</family>
+       <pointsize>28</pointsize>
+       <weight>9</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Model:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

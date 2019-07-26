@@ -273,7 +273,7 @@ void perf_chart::updateFPSValue(float fpsValue)
             bar->setFPS(fpsValue);
     }
     else if (mMode == 2) {
-        mNumPods = mNumPods > 0 ? mNumPods : 1;
+        mNumPods = std::max(mNumPods, 1);
         mFPSValue = fpsValue / mNumPods;
         if (mFPSValue > mMaxFPS) {
             mMaxFPS = mFPSValue;
@@ -290,8 +290,8 @@ void perf_chart::updateFPSValue(float fpsValue)
         }
         if (mFPSValue > mCurMaxFPS) {
             mCurMaxFPS = mFPSValue;
-            mNumPods = mNumPods > 0 ? mNumPods : 1;
-            localMaxFPS = (mCurMaxFPS / mNumPods) > 1275 ? (mCurMaxFPS / mNumPods) : 1275;
+            mNumPods = std::max(mNumPods, 1);
+            localMaxFPS = std::max((int)(mCurMaxFPS / mNumPods), 1275);
         }
         float scaling = fpsValue / localMaxFPS;
         ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 2));
