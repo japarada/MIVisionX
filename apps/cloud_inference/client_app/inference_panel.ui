@@ -6,290 +6,382 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>700</height>
+    <width>978</width>
+    <height>600</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>430</width>
-    <height>700</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>430</width>
-    <height>700</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>Inference Statistics Panel</string>
+   <string>MIVision Performance</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(109, 109, 109);</string>
+   <string notr="true">background-color: rgb(226, 226, 226);</string>
   </property>
-  <widget class="QLCDNumber" name="lcdNumber">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>160</y>
-     <width>91</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="intValue" stdset="0">
-    <number>0</number>
-   </property>
-  </widget>
-  <widget class="QLabel" name="imagesPerSecLabel">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>160</y>
-     <width>181</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(241, 216, 26);
-font: 75 14pt &quot;Calibri&quot;;</string>
-   </property>
-   <property name="text">
-    <string>Images per second</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="performace_graph_Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>220</y>
-     <width>231</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>191</width>
-     <height>41</height>
-    </size>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(241, 216, 26);
-font: 75 14pt &quot;Calibri&quot;;</string>
-   </property>
-   <property name="text">
-    <string>View Performace Graph</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="viewGraph_pushButton">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>230</y>
-     <width>51</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string>View</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="view_classes_Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>280</y>
-     <width>241</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(241, 216, 26);
-font: 75 14pt &quot;Calibri&quot;;</string>
-   </property>
-   <property name="text">
-    <string>View Identified Classes</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="viewclass_pushButton">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>290</y>
-     <width>51</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string>View</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="GPUView_pushButton">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>350</y>
-     <width>51</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string>View</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="view_GPU_Label">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>340</y>
-     <width>191</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(241, 216, 26);
-font: 75 14pt &quot;Calibri&quot;;</string>
-   </property>
-   <property name="text">
-    <string>View GPU Usage</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="view_GPU_Label_2">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>400</y>
-     <width>251</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(241, 216, 26);
-font: 75 14pt &quot;Calibri&quot;;</string>
-   </property>
-   <property name="text">
-    <string>View Inference Statistics</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="GPUView_pushButton_2">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>410</y>
-     <width>51</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string>View</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="gridLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>411</width>
-     <height>110</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="panel_gridLayout" rowminimumheight="0">
-    <property name="sizeConstraint">
-     <enum>QLayout::SetNoConstraint</enum>
-    </property>
-    <property name="leftMargin">
-     <number>5</number>
-    </property>
-    <property name="topMargin">
-     <number>5</number>
-    </property>
-    <property name="rightMargin">
-     <number>5</number>
-    </property>
-    <property name="bottomMargin">
-     <number>5</number>
-    </property>
-    <item row="0" column="0" alignment="Qt::AlignHCenter">
-     <widget class="QLabel" name="logo_label">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="resources.qrc">:/images/display_panel_logo.png</pixmap>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>110</y>
-     <width>411</width>
-     <height>43</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item alignment="Qt::AlignHCenter">
-     <widget class="QLabel" name="header_label">
-      <property name="minimumSize">
-       <size>
-        <width>251</width>
-        <height>41</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);
-font: 16pt &quot;Georgia&quot;;</string>
-      </property>
-      <property name="text">
-       <string>Inference Statistics Panel</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWidget" name="verticalLayoutWidget_2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>660</y>
-     <width>411</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item alignment="Qt::AlignHCenter">
-     <widget class="QPushButton" name="reset_pushButton">
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 0, 0);
-color: rgb(255, 255, 255);
-font: 75 10pt &quot;Georgia&quot;;</string>
-      </property>
-      <property name="text">
-       <string>RESET ALL</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="11" column="0" colspan="2">
+    <widget class="QLabel" name="ElapsedTime_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Elapse Time:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QLabel" name="GPUName_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(170, 0, 0);
+font: 75 20pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="2" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLCDNumber" name="mLCDNumber">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="min_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>min</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLCDNumber" name="sLCDNumber">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="sec_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>sec</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLCDNumber" name="msLCDNumber">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="msec_label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>msec</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QLabel" name="header_label">
+     <property name="font">
+      <font>
+       <family>Ubuntu</family>
+       <pointsize>38</pointsize>
+       <weight>9</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 38pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Performance</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="4">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/images/AMD Radeon Instinct.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/images/MIVisionX.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="resources.qrc">:/images/EPYC-blue.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="9" column="2" colspan="2">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximum">
+      <number>1710</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QLabel" name="CPUName_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(170, 0, 0);
+font: 75 20pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QLabel" name="modelName_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(170, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLabel" name="Progress_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Progress:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLabel" name="GPU_label">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>GPU:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="CPU_label">
+     <property name="font">
+      <font>
+       <family>Ubuntu</family>
+       <pointsize>28</pointsize>
+       <weight>9</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>CPU:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="Model_label">
+     <property name="font">
+      <font>
+       <family>Ubuntu</family>
+       <pointsize>28</pointsize>
+       <weight>9</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);
+font: 75 28pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Model:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources>
   <include location="resources.qrc"/>

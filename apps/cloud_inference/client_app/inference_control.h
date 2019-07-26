@@ -45,7 +45,7 @@ public slots:
     void onLogo2Click();
     void topKResultsEnable(bool topKEnable);
     void shadowFolderEnable(bool shadowEnable);
-
+    void modeChanged();
 protected:
     void browseShadowFolder();
     void browseDataLabels();

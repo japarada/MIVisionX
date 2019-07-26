@@ -128,6 +128,10 @@ inference_viewer::inference_viewer(QString serverHost, int serverPort, QString m
     progress.images_loaded = 0;
     state->performance = new perf_graph(mode);
     state->chart = new perf_chart(mode, cpuName, gpuName);
+    state->panel = new inference_panel(modelName, cpuName, gpuName, maxImageDataSize);
+    if (mode == 4) {
+        state->panel->move(QApplication::desktop()->screen()->rect().center().x() - 80, QApplication::desktop()->screen()->rect().center().y() - state->panel->height() / 2);
+    }
     if (mode == 3) {
         state->performance->hideFPS();
     }
@@ -204,7 +208,7 @@ void inference_viewer::startReceivers()
 		receivers_timer->start(1000);
 
 	}
-	
+    state->panel->startTimer();
 }
 
 void inference_viewer::manageReceiversPool()
@@ -301,17 +305,20 @@ void inference_viewer::terminate()
 
 void inference_viewer::showPerfResults()
 {
-    state->performance->setModelName(state->modelName);
-    state->performance->setStartTime(state->startTime);
-    state->performance->setNumGPU(state->GPUs);
-#if defined(ENABLE_KUBERNETES_MODE)
-    // TBD: Set Actual Numbers
-    state->performance->setPods(0);
-    state->performance->setTotalGPU(state->GPUs*1);
-#endif
-
-    state->performance->show();
-
+    if (state->mode == 4) {
+        state->panel->show();
+    }
+    else {
+        state->performance->setModelName(state->modelName);
+        state->performance->setStartTime(state->startTime);
+        state->performance->setNumGPU(state->GPUs);
+    #if defined(ENABLE_KUBERNETES_MODE)
+        // TBD: Set Actual Numbers
+        state->performance->setPods(0);
+        state->performance->setTotalGPU(state->GPUs*1);
+    #endif
+        state->performance->show();
+    }
 }
 
 void inference_viewer::showChartResults()
@@ -1004,6 +1011,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             }
         }
         state->imageDataSize = state->imageDataFilenames.size();
+        state->panel->setMaximum(state->imageDataSize*progress.totalLoop);
         state->labelLoadDone = true;
         if(state->imageDataSize == 0) {
             fatalError.sprintf("ERROR: no image files detected");
@@ -1107,7 +1115,6 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->receiver_worker->setImageCount(state->imagePixmapCount, state->dataLabels ? state->dataLabels->size() : 0, state->dataLabels);
 #endif
 	}
-
     // initialize painter object
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -1122,7 +1129,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         painter.drawRect(state->statusBarRect);
         if(progress.loopCount > 1) {
             QString text;
-            if (state->mode == 3) {
+            if (state->mode == 3 || state->mode == 4) {
                 text.sprintf("Cycling through %d images from the image list", state->imagePixmapCount);
             }
             else {
@@ -1130,7 +1137,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             }
             statusText += text;
         }
-        else if (progress.completed) {
+        else if (progress.completed && progress.images_received == state->imagePixmapCount*progress.totalLoop) {
             if(progress.errorCode) {
                 QString text;
                 text.sprintf("Completed: %d/%d images have been processed [error %d]", progress.images_received, state->imagePixmapCount, progress.errorCode);
@@ -1138,7 +1145,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
             }
             else {
                 QString text;
-                text.sprintf("Completed: %d/%d images have been processed", progress.images_received, state->imagePixmapCount);
+                text.sprintf("Completed: %d/%d images have been processed", progress.images_received, state->imagePixmapCount*progress.totalLoop);
                 statusText += text;
             }
             if(!timerStopped && updateTimer) {
@@ -1149,7 +1156,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         }
         else {
             QString text;
-            if (state->mode == 3) {
+            if (state->mode == 3 || state->mode == 4) {
                 text.sprintf("Cycling through %d images from the image list", state->imagePixmapCount);
             }
             else {
@@ -1244,6 +1251,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
         state->performance->updateElapsedTime(state->elapsedTime);
         state->performance->updateFPSValue(imagesPerSec);
         state->performance->updateTotalImagesValue(progress.images_received);
+        state->panel->setValue(progress.images_received);
         state->chart->updateFPSValue(imagesPerSec);
 #if defined(ENABLE_KUBERNETES_MODE)
         //update number of connections to inference server
@@ -1266,7 +1274,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
 		state->chart.setGPUs(state->GPUs*connections);
 #endif
         if(imagesPerSec > 0) {
-            if (state->mode != 3) {
+            if (state->mode == 1 || state->mode == 2) {
                 QString text;
                 text.sprintf("... %.1f images/sec", imagesPerSec);
                 statusText += text;
@@ -1324,7 +1332,7 @@ void inference_viewer::paintEvent(QPaintEvent *)
                 enableZoomInEffect = false;
             else if(imageCount < (numCols * numRows * 3 / 4))
                 enableZoomInEffect = false;
-            if (numPods == 24)
+            if (numPods >= 24)
                 enableZoomInEffect = false;
             if(enableZoomInEffect && (row / 2) < (numRows / 4)) {
                 if((row % 2) == 0 && (col % 2) == 0) {
