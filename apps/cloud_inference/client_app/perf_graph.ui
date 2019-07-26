@@ -473,7 +473,7 @@ font: 75 36pt &quot;Ubuntu&quot;;</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="resources.qrc">:/images/EPYC.png</pixmap>
+        <pixmap resource="resources.qrc">:/images/EPYC-blue.png</pixmap>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
