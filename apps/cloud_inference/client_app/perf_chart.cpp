@@ -82,7 +82,7 @@ void perf_chart::initGraph()
         QVector<double> ticks;
         QVector<QString> labels;
         for (int i=1; i<50; i++) {
-            ticks << 1275*i;
+            ticks << 1225*i;
             QString str;
             str = QString("%1x").arg(i);
             labels << str;
@@ -291,7 +291,7 @@ void perf_chart::updateFPSValue(float fpsValue)
         if (mFPSValue > mCurMaxFPS) {
             mCurMaxFPS = mFPSValue;
             mNumPods = std::max(mNumPods, 1);
-            localMaxFPS = std::max((int)(mCurMaxFPS / mNumPods), 1275);
+            localMaxFPS = std::max((int)(mCurMaxFPS / mNumPods), 1225);
         }
         float scaling = fpsValue / localMaxFPS;
         ui->maxfps_lcdNumber->display(QString("%1").arg(scaling, 0, 'f', 2));

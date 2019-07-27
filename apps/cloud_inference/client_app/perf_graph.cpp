@@ -62,7 +62,7 @@ void perf_graph::updateFPSValue(float fps)
         if (mCurMaxFPS < fps) {
             mCurMaxFPS = fps;
             mNumPods = std::max(mNumPods, 1);
-            localMaxFPS = std::max((int)(mCurMaxFPS / mNumPods), 1275);
+            localMaxFPS = std::max((int)(mCurMaxFPS / mNumPods), 1225);
         }
         float scale = fps / localMaxFPS;
         ui->fps_lcdNumber->display(QString("%1").arg((double)scale, 0, 'f', 2));
