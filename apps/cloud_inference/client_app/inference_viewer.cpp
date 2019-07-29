@@ -1142,11 +1142,13 @@ void inference_viewer::paintEvent(QPaintEvent *)
                 QString text;
                 text.sprintf("Completed: %d/%d images have been processed [error %d]", progress.images_received, state->imagePixmapCount, progress.errorCode);
                 statusText += text;
+                state->panel->stopTimer();
             }
             else {
                 QString text;
                 text.sprintf("Completed: %d/%d images have been processed", progress.images_received, state->imagePixmapCount*progress.totalLoop);
                 statusText += text;
+                state->panel->stopTimer();
             }
             if(!timerStopped && updateTimer) {
                 // TODO: something is wrong with timer and paint event triggers
